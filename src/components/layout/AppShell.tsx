@@ -1,21 +1,42 @@
 "use client";
 
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { useAuth } from "@/context/AuthContext";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, isHydrated } = useAuth();
 
-  // Render standalone layout for public dealership landing page (/ and /showroom) and /login
-  if (
+  const isPublicRoute =
     pathname === "/" ||
     pathname === "/login" ||
-    pathname.startsWith("/showroom")
-  ) {
+    pathname.startsWith("/showroom");
+
+  useEffect(() => {
+    if (isHydrated && !isPublicRoute && !isAuthenticated) {
+      router.replace(
+        `/login?redirect=${encodeURIComponent(pathname || "/dashboard")}`
+      );
+    }
+  }, [isHydrated, isPublicRoute, isAuthenticated, pathname, router]);
+
+  // Render standalone layout for public dealership landing page (/ and /showroom) and /login
+  if (isPublicRoute) {
     return <>{children}</>;
+  }
+
+  // Gate staff routes until authenticated
+  if (!isHydrated || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-300 text-sm font-medium">
+        Redirecting to Staff Portal Login...
+      </div>
+    );
   }
 
   return (

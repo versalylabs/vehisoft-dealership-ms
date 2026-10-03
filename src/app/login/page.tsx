@@ -1,52 +1,103 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Car, ShieldCheck, Lock, Mail, ArrowRight } from "lucide-react";
+import React, { useState, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Car,
+  ShieldCheck,
+  Lock,
+  Mail,
+  ArrowRight,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  KeyRound,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { ROLE_LABELS, ROLE_DESCRIPTIONS, UserRole } from "@/lib/auth";
 
-export default function LoginPage() {
+function LoginFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams.get("redirect") || "/dashboard";
+
   const { users, loginWithEmail, switchUserByRole } = useAuth();
-  const [email, setEmail] = useState("admin@vehisoft.co.ke");
-  const [password, setPassword] = useState("Vehisoft@2026");
+  const [email, setEmail] = useState("versalylabs@gmail.com");
+  const [password, setPassword] = useState("labversaly-16");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const ok = loginWithEmail(email);
+    const ok = loginWithEmail(email, password);
     if (!ok) {
       setError(
-        "No active staff account found with that email. Use one of the dealership accounts below."
+        "Invalid credentials. Use 'versalylabs@gmail.com' with password 'labversaly-16' (or select a staff role below)."
       );
       return;
     }
-    router.push("/dashboard");
+    router.push(redirectTarget);
   };
 
   const handleQuickRoleSignIn = (role: UserRole) => {
     switchUserByRole(role);
-    router.push("/dashboard");
+    router.push(redirectTarget);
   };
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-xl mb-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Public Dealership Showroom</span>
+        </Link>
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30 mb-4">
           <Car className="w-8 h-8" />
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">
-          Vehisoft Dealership MS
+          Staff & Dealership Admin Login
         </h1>
         <p className="mt-1.5 text-sm text-slate-400">
-          Inventory • CRM • Sales Pipeline • Deal Tracking (KSh.)
+          Sign in to access the Dealership Dashboard, Inventory, CRM & AI Agent
+          Controls
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-slate-200">
+          {/* Credentials Info Banner */}
+          <div className="mb-6 p-3.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 text-xs text-blue-900">
+              <KeyRound className="w-4 h-4 text-blue-600 shrink-0" />
+              <div>
+                <span className="font-bold block">Admin Credentials:</span>
+                <span>
+                  Email: <strong>versalylabs@gmail.com</strong> • Password:{" "}
+                  <strong>labversaly-16</strong>
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setEmail("versalylabs@gmail.com");
+                setPassword("labversaly-16");
+                setError("");
+              }}
+              className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold shrink-0 cursor-pointer"
+            >
+              Auto-Fill
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -60,7 +111,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                  placeholder="admin@vehisoft.co.ke"
+                  placeholder="versalylabs@gmail.com"
                 />
               </div>
             </div>
@@ -72,12 +123,25 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  placeholder="labversaly-16"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -89,9 +153,9 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-colors cursor-pointer"
             >
-              <span>Sign In to Dealership Portal</span>
+              <span>Sign In to Staff Dashboard</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -119,14 +183,16 @@ export default function LoginPage() {
                     key={role}
                     type="button"
                     onClick={() => handleQuickRoleSignIn(role)}
-                    className="text-left p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all group"
+                    className="text-left p-3 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all group cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-900 group-hover:text-blue-700">
                         {ROLE_LABELS[role]}
                       </span>
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                        {account?.name.split(" ")[0]}
+                        {account?.email === "versalylabs@gmail.com"
+                          ? "versalylabs"
+                          : account?.name.split(" ")[0]}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
@@ -140,5 +206,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white text-sm">
+          Loading Login...
+        </div>
+      }
+    >
+      <LoginFormContent />
+    </Suspense>
   );
 }

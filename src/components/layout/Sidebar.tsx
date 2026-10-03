@@ -54,8 +54,8 @@ export function Sidebar({
     "Website & AI": true,
     Sales: true,
     Inventory: true,
-    Reports: false,
-    Settings: false,
+    Reports: true,
+    Settings: true,
   });
 
   const toggleGroup = (label: string) => {

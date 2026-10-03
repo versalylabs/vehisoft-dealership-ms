@@ -146,17 +146,17 @@ const DealershipContext = createContext<DealershipContextType | undefined>(
   undefined
 );
 
-const STORAGE_VEHICLES_KEY = "vehisoft_vehicles_v1";
-const STORAGE_SUPPLIERS_KEY = "vehisoft_suppliers_v1";
-const STORAGE_CUSTOMERS_KEY = "vehisoft_customers_v1";
-const STORAGE_LEADS_KEY = "vehisoft_leads_v1";
-const STORAGE_ACTIVITIES_KEY = "vehisoft_activities_v1";
-const STORAGE_TEST_DRIVES_KEY = "vehisoft_test_drives_v1";
-const STORAGE_RESERVATIONS_KEY = "vehisoft_reservations_v1";
-const STORAGE_SALES_KEY = "vehisoft_sales_v1";
-const STORAGE_AI_SETTINGS_KEY = "vehisoft_ai_settings_v1";
-const STORAGE_AI_CONVERSATIONS_KEY = "vehisoft_ai_conversations_v1";
-const STORAGE_TRADE_INS_KEY = "vehisoft_trade_ins_v1";
+const STORAGE_VEHICLES_KEY = "vehisoft_vehicles_v2";
+const STORAGE_SUPPLIERS_KEY = "vehisoft_suppliers_v2";
+const STORAGE_CUSTOMERS_KEY = "vehisoft_customers_v2";
+const STORAGE_LEADS_KEY = "vehisoft_leads_v2";
+const STORAGE_ACTIVITIES_KEY = "vehisoft_activities_v2";
+const STORAGE_TEST_DRIVES_KEY = "vehisoft_test_drives_v2";
+const STORAGE_RESERVATIONS_KEY = "vehisoft_reservations_v2";
+const STORAGE_SALES_KEY = "vehisoft_sales_v2";
+const STORAGE_AI_SETTINGS_KEY = "vehisoft_ai_settings_v2";
+const STORAGE_AI_CONVERSATIONS_KEY = "vehisoft_ai_conversations_v2";
+const STORAGE_TRADE_INS_KEY = "vehisoft_trade_ins_v2";
 
 const STAGE_PROBABILITY: Record<PipelineStageType, number> = {
   NEW: 10,
