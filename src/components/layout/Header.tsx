@@ -28,7 +28,7 @@ export function Header({
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 lg:px-8 flex items-center justify-between z-30">
       {/* Left: Mobile Menu Trigger + Branch Info */}
       <div className="flex items-center gap-4">
         <button

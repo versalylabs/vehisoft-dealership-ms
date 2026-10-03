@@ -15,13 +15,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50 text-slate-900">
+    <div className="h-screen overflow-hidden flex bg-slate-50 text-slate-900">
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <Header onOpenMobileMenu={() => setMobileOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
-          {children}
-        </main>
+        <div className="flex-1 overflow-y-auto">
+          <main className="p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

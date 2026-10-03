@@ -148,12 +148,12 @@ export function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 h-screen shrink-0 bg-slate-900 text-slate-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 px-5 flex items-center justify-between border-b border-slate-800">
+        <div className="h-16 shrink-0 px-5 flex items-center justify-between border-b border-slate-800">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/30">
               <Car className="w-5 h-5" />
@@ -248,7 +248,7 @@ export function Sidebar({
         </nav>
 
         {/* Active User & Role Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/50">
+        <div className="p-4 shrink-0 border-t border-slate-800 bg-slate-950/50">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-semibold text-sm">
               {user.name
