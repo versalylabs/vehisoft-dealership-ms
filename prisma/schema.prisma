@@ -1,0 +1,477 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  ADMIN
+  MANAGER
+  SALESPERSON
+  INVENTORY_STAFF
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  PENDING_ACQUISITION
+  IN_TRANSIT
+  ARCHIVED
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+  DEALER
+  FLEET
+}
+
+enum PipelineStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  VIEWING
+  TEST_DRIVE
+  NEGOTIATION
+  RESERVED
+  SOLD
+  LOST
+}
+
+enum LeadSource {
+  WALK_IN
+  WEBSITE
+  INSTAGRAM
+  FACEBOOK
+  WHATSAPP
+  PHONE
+  REFERRAL
+  DEALER
+  MARKETPLACE
+  OTHER
+}
+
+enum ActivityType {
+  CALL
+  WHATSAPP
+  SMS
+  EMAIL
+  MEETING
+  VEHICLE_VIEWING
+  TEST_DRIVE
+  FOLLOW_UP
+  NOTE
+}
+
+enum ActivityStatus {
+  DUE
+  COMPLETED
+  OVERDUE
+  CANCELLED
+}
+
+enum TestDriveStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  REFUNDED
+}
+
+enum ExpenseCategory {
+  PURCHASE
+  TRANSPORT
+  REPAIRS
+  DETAILING
+  INSPECTION
+  REGISTRATION
+  INSURANCE
+  ADVERTISING
+  OTHER
+}
+
+enum SupplierType {
+  LOCAL_OWNER
+  IMPORTER
+  AUCTION
+  DEALER
+  TRADE_IN
+  COMPANY_FLEET
+}
+
+enum ImageCategory {
+  EXTERIOR
+  INTERIOR
+  ENGINE
+  DOCUMENT
+}
+
+// ============================================================================
+// 12 & 13. SETTINGS, BRANCHES & USERS
+// ============================================================================
+
+model DealershipSettings {
+  id                  String   @id @default(cuid())
+  dealershipName      String   @default("Vehisoft Motors Ltd")
+  tagline             String?  @default("Premier Quality Vehicles")
+  phone               String?  @default("+254 700 123 456")
+  email               String?  @default("sales@vehisoft.co.ke")
+  address             String?  @default("Ngong Road, Nairobi, Kenya")
+  currencySymbol      String   @default("KSh.")
+  currencyCode        String   @default("KES")
+  stockNumberPrefix   String   @default("VH-")
+  nextStockSequence   Int      @default(1001)
+  targetInventoryDays Int      @default(60)
+  defaultReservationDays Int   @default(7)
+  updatedAt           DateTime @updatedAt
+}
+
+model Branch {
+  id        String    @id @default(cuid())
+  name      String
+  location  String
+  phone     String?
+  isMain    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  users     User[]
+  vehicles  Vehicle[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         Role     @default(SALESPERSON)
+  isActive     Boolean  @default(true)
+  branchId     String?
+  branch       Branch?  @relation(fields: [branchId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignedCustomers Customer[]       @relation("SalespersonCustomers")
+  assignedLeads     Lead[]           @relation("SalespersonLeads")
+  activities        Activity[]       @relation("StaffActivities")
+  testDrives        TestDrive[]      @relation("SalespersonTestDrives")
+  reservations      Reservation[]    @relation("SalespersonReservations")
+  sales             Sale[]           @relation("SalespersonSales")
+  loggedExpenses    VehicleExpense[] @relation("StaffExpenses")
+  vehicleHistory    VehicleHistory[] @relation("StaffVehicleHistory")
+}
+
+// ============================================================================
+// 10. SUPPLIERS / VEHICLE SOURCES
+// ============================================================================
+
+model Supplier {
+  id        String       @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  type      SupplierType @default(IMPORTER)
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  vehicles  Vehicle[]
+}
+
+// ============================================================================
+// 2 & 9. VEHICLE INVENTORY & COSTS
+// ============================================================================
+
+model Vehicle {
+  id                 String        @id @default(cuid())
+  stockNumber        String        @unique
+  registrationNumber String?       @unique
+  vin                String?       @unique
+  make               String
+  model              String
+  variant            String?
+  year               Int
+  color              String
+  mileage            Int           @default(0)
+  fuelType           String        // Petrol, Diesel, Hybrid, Electric
+  transmission       String        // Automatic, Manual, CVT
+  bodyType           String        // SUV, Sedan, Hatchback, Pickup, Station Wagon, Van
+  status             VehicleStatus @default(AVAILABLE)
+  location           String        @default("Main Showroom - Nairobi")
+
+  // Financials (stored in KSh.)
+  purchasePrice      Float         @default(0)
+  askingPrice        Float         @default(0)
+  minimumPrice       Float         @default(0)
+  actualSalePrice    Float?
+
+  // Acquisition
+  supplierId         String?
+  supplier           Supplier?     @relation(fields: [supplierId], references: [id])
+  dateAcquired       DateTime      @default(now())
+  branchId           String?
+  branch             Branch?       @relation(fields: [branchId], references: [id])
+  notes              String?
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  images             VehicleImage[]
+  expenses           VehicleExpense[]
+  history            VehicleHistory[]
+  leads              Lead[]
+  activities         Activity[]
+  testDrives         TestDrive[]
+  reservations       Reservation[]
+  sale               Sale?
+
+  @@index([status])
+  @@index([make, model])
+  @@index([dateAcquired])
+}
+
+model VehicleImage {
+  id        String        @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url       String
+  category  ImageCategory @default(EXTERIOR)
+  caption   String?
+  isPrimary Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
+
+model VehicleExpense {
+  id          String          @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  category    ExpenseCategory @default(OTHER)
+  description String
+  amount      Float           // in KSh.
+  incurredAt  DateTime        @default(now())
+  loggedById  String?
+  loggedBy    User?           @relation("StaffExpenses", fields: [loggedById], references: [id])
+  createdAt   DateTime        @default(now())
+
+  @@index([vehicleId])
+}
+
+model VehicleHistory {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  eventType   String   // PRICE_CHANGE, STATUS_CHANGE, RESERVATION, ENQUIRY, OFFER, SALE, EXPENSE
+  previousVal String?
+  newVal      String?
+  description String
+  createdById String?
+  createdBy   User?    @relation("StaffVehicleHistory", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([vehicleId])
+}
+
+// ============================================================================
+// 3. CUSTOMERS
+// ============================================================================
+
+model Customer {
+  id               String       @id @default(cuid())
+  fullName         String
+  phone            String
+  altPhone         String?
+  email            String?
+  address          String?
+  location         String?      @default("Nairobi")
+  idPassportNo     String?
+  customerType     CustomerType @default(INDIVIDUAL)
+
+  // Preferences
+  preferredMakes   String?      // Comma-separated e.g. "Toyota, Mazda"
+  preferredModels  String?      // Comma-separated e.g. "Harrier, CX-5"
+  budgetMin        Float?
+  budgetMax        Float?
+  preferredYear    Int?
+  preferredFuel    String?
+  preferredTrans   String?
+  preferredBody    String?
+
+  assignedToId     String?
+  assignedTo       User?        @relation("SalespersonCustomers", fields: [assignedToId], references: [id])
+  lastInteraction  DateTime?    @default(now())
+  notes            String?
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  leads            Lead[]
+  activities       Activity[]
+  testDrives       TestDrive[]
+  reservations     Reservation[]
+  purchases        Sale[]
+
+  @@index([phone])
+  @@index([fullName])
+}
+
+// ============================================================================
+// 4. LEADS / SALES PIPELINE
+// ============================================================================
+
+model Lead {
+  id                   String        @id @default(cuid())
+  customerId           String
+  customer             Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicleId            String?
+  vehicle              Vehicle?      @relation(fields: [vehicleId], references: [id])
+  source               LeadSource    @default(WALK_IN)
+  assignedToId         String?
+  assignedTo           User?         @relation("SalespersonLeads", fields: [assignedToId], references: [id])
+  budget               Float?        // in KSh.
+  expectedPurchaseDate DateTime?
+  stage                PipelineStage @default(NEW)
+  probability          Int?          @default(20) // 0 - 100%
+  notes                String?
+  lastContactAt        DateTime      @default(now())
+  nextFollowUpAt       DateTime?
+  lostReason           String?
+
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  activities           Activity[]
+  sale                 Sale?
+
+  @@index([stage])
+  @@index([assignedToId])
+}
+
+// ============================================================================
+// 5. FOLLOW-UPS / ACTIVITIES
+// ============================================================================
+
+model Activity {
+  id          String         @id @default(cuid())
+  type        ActivityType   @default(CALL)
+  status      ActivityStatus @default(DUE)
+  customerId  String
+  customer    Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  leadId      String?
+  lead        Lead?          @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  vehicleId   String?
+  vehicle     Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  staffId     String?
+  staff       User?          @relation("StaffActivities", fields: [staffId], references: [id])
+  scheduledAt DateTime       @default(now())
+  completedAt DateTime?
+  notes       String
+  nextAction  String?
+  createdAt   DateTime       @default(now())
+
+  @@index([scheduledAt, status])
+  @@index([staffId])
+}
+
+// ============================================================================
+// 6. TEST DRIVES
+// ============================================================================
+
+model TestDrive {
+  id              String          @id @default(cuid())
+  customerId      String
+  customer        Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicleId       String
+  vehicle         Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  salespersonId   String?
+  salesperson     User?           @relation("SalespersonTestDrives", fields: [salespersonId], references: [id])
+  scheduledAt     DateTime
+  driverName      String
+  driverLicenseNo String?
+  mileageOut      Int?
+  mileageIn       Int?
+  status          TestDriveStatus @default(SCHEDULED)
+  notes           String?
+  outcome         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([scheduledAt])
+}
+
+// ============================================================================
+// 7. RESERVATIONS
+// ============================================================================
+
+model Reservation {
+  id              String        @id @default(cuid())
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicleId       String
+  vehicle         Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  reservedById    String?
+  reservedBy      User?         @relation("SalespersonReservations", fields: [reservedById], references: [id])
+  reservationDate DateTime      @default(now())
+  expiryDate      DateTime
+  depositAmount   Float         @default(0) // in KSh.
+  depositStatus   PaymentStatus @default(PAID)
+  isActive        Boolean       @default(true)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([vehicleId, isActive])
+  @@index([expiryDate])
+}
+
+// ============================================================================
+// 8. COMPLETED SALES
+// ============================================================================
+
+model Sale {
+  id                   String        @id @default(cuid())
+  saleNumber           String        @unique
+  customerId           String
+  customer             Customer      @relation(fields: [customerId], references: [id])
+  vehicleId            String        @unique
+  vehicle              Vehicle       @relation(fields: [vehicleId], references: [id])
+  salespersonId        String?
+  salesperson          User?         @relation("SalespersonSales", fields: [salespersonId], references: [id])
+  leadId               String?       @unique
+  lead                 Lead?         @relation(fields: [leadId], references: [id])
+
+  // Financials (in KSh.)
+  salePrice            Float
+  discount             Float         @default(0)
+  depositPaid          Float         @default(0)
+  balanceDue           Float         @default(0)
+  paymentMethod        String        @default("Bank Transfer") // Cash, Bank Transfer, M-Pesa, Asset Finance, Cheque
+  paymentStatus        PaymentStatus @default(PAID)
+
+  // Profitability Snapshot at time of sale
+  purchaseCostSnapshot Float         @default(0)
+  expensesSnapshot     Float         @default(0)
+  grossProfit          Float         @default(0)
+
+  saleDate             DateTime      @default(now())
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([saleDate])
+  @@index([salespersonId])
+}
