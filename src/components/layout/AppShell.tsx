@@ -9,8 +9,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
-  // Render standalone layout for /login
-  if (pathname === "/login") {
+  // Render standalone layout for /login and public dealership website (/showroom)
+  if (pathname === "/login" || pathname.startsWith("/showroom")) {
     return <>{children}</>;
   }
 

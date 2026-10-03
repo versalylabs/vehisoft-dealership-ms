@@ -27,6 +27,13 @@ import {
   INITIAL_SALES,
 } from "@/lib/demo-store";
 import { formatKSh } from "@/lib/format";
+import {
+  AIAgentSettings,
+  AIConversation,
+  TradeInSubmission,
+  INITIAL_AI_SETTINGS,
+  INITIAL_AI_CONVERSATIONS,
+} from "@/lib/ai-sales-agent";
 
 interface DealershipContextType {
   vehicles: DemoVehicle[];
@@ -37,6 +44,9 @@ interface DealershipContextType {
   testDrives: DemoTestDrive[];
   reservations: DemoReservation[];
   sales: DemoSale[];
+  aiSettings: AIAgentSettings;
+  aiConversations: AIConversation[];
+  tradeInRequests: TradeInSubmission[];
   addVehicle: (
     data: Omit<DemoVehicle, "id" | "images" | "expenses" | "history">,
     initialExpense?: {
@@ -120,6 +130,16 @@ interface DealershipContextType {
     }
   ) => DemoSale | null;
   markSalePaid: (saleId: string) => void;
+  updateAISettings: (patch: Partial<AIAgentSettings>) => void;
+  upsertAIConversation: (conv: AIConversation) => void;
+  sendStaffReplyToConversation: (
+    convId: string,
+    text: string,
+    staffName: string
+  ) => void;
+  addTradeInRequest: (
+    req: Omit<TradeInSubmission, "id" | "createdAt">
+  ) => TradeInSubmission;
 }
 
 const DealershipContext = createContext<DealershipContextType | undefined>(
@@ -134,6 +154,9 @@ const STORAGE_ACTIVITIES_KEY = "vehisoft_activities_v1";
 const STORAGE_TEST_DRIVES_KEY = "vehisoft_test_drives_v1";
 const STORAGE_RESERVATIONS_KEY = "vehisoft_reservations_v1";
 const STORAGE_SALES_KEY = "vehisoft_sales_v1";
+const STORAGE_AI_SETTINGS_KEY = "vehisoft_ai_settings_v1";
+const STORAGE_AI_CONVERSATIONS_KEY = "vehisoft_ai_conversations_v1";
+const STORAGE_TRADE_INS_KEY = "vehisoft_trade_ins_v1";
 
 const STAGE_PROBABILITY: Record<PipelineStageType, number> = {
   NEW: 10,
@@ -166,6 +189,14 @@ export function DealershipProvider({
     INITIAL_RESERVATIONS
   );
   const [sales, setSales] = useState<DemoSale[]>(INITIAL_SALES);
+  const [aiSettings, setAISettings] =
+    useState<AIAgentSettings>(INITIAL_AI_SETTINGS);
+  const [aiConversations, setAIConversations] = useState<AIConversation[]>(
+    INITIAL_AI_CONVERSATIONS
+  );
+  const [tradeInRequests, setTradeInRequests] = useState<TradeInSubmission[]>(
+    []
+  );
 
   useEffect(() => {
     try {
@@ -185,6 +216,12 @@ export function DealershipProvider({
       if (savedRes) setReservations(JSON.parse(savedRes));
       const savedSales = localStorage.getItem(STORAGE_SALES_KEY);
       if (savedSales) setSales(JSON.parse(savedSales));
+      const savedAI = localStorage.getItem(STORAGE_AI_SETTINGS_KEY);
+      if (savedAI) setAISettings(JSON.parse(savedAI));
+      const savedConvs = localStorage.getItem(STORAGE_AI_CONVERSATIONS_KEY);
+      if (savedConvs) setAIConversations(JSON.parse(savedConvs));
+      const savedTI = localStorage.getItem(STORAGE_TRADE_INS_KEY);
+      if (savedTI) setTradeInRequests(JSON.parse(savedTI));
     } catch {}
   }, []);
 
@@ -928,6 +965,134 @@ export function DealershipProvider({
     );
   };
 
+  const updateAISettings = (patch: Partial<AIAgentSettings>) => {
+    const next = { ...aiSettings, ...patch };
+    setAISettings(next);
+    try {
+      localStorage.setItem(STORAGE_AI_SETTINGS_KEY, JSON.stringify(next));
+    } catch {}
+  };
+
+  const upsertAIConversation = (conv: AIConversation) => {
+    setAIConversations((prev) => {
+      const exists = prev.some((c) => c.id === conv.id);
+      const updated = exists
+        ? prev.map((c) => (c.id === conv.id ? conv : c))
+        : [conv, ...prev];
+      try {
+        localStorage.setItem(
+          STORAGE_AI_CONVERSATIONS_KEY,
+          JSON.stringify(updated)
+        );
+      } catch {}
+      return updated;
+    });
+  };
+
+  const sendStaffReplyToConversation = (
+    convId: string,
+    text: string,
+    staffName: string
+  ) => {
+    const nowTime = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    setAIConversations((prev) => {
+      const updated = prev.map((c) => {
+        if (c.id !== convId) return c;
+        return {
+          ...c,
+          updatedAt: `Today, ${nowTime}`,
+          messages: [
+            ...c.messages,
+            {
+              id: `msg-${Date.now()}`,
+              sender: "STAFF" as const,
+              senderName: staffName,
+              text,
+              timestamp: nowTime,
+            },
+          ],
+        };
+      });
+      try {
+        localStorage.setItem(
+          STORAGE_AI_CONVERSATIONS_KEY,
+          JSON.stringify(updated)
+        );
+      } catch {}
+      return updated;
+    });
+  };
+
+  const addTradeInRequest = (
+    req: Omit<TradeInSubmission, "id" | "createdAt">
+  ): TradeInSubmission => {
+    const now = new Date().toISOString().split("T")[0];
+    const created: TradeInSubmission = {
+      ...req,
+      id: `ti-${Date.now()}`,
+      createdAt: now,
+    };
+    const nextList = [created, ...tradeInRequests];
+    setTradeInRequests(nextList);
+    try {
+      localStorage.setItem(STORAGE_TRADE_INS_KEY, JSON.stringify(nextList));
+    } catch {}
+
+    // Also create a Customer + Lead in CRM so sales & acquisition team see it immediately
+    const newCust = addCustomer({
+      fullName: req.customerName,
+      phone: req.customerPhone,
+      email: req.customerEmail || "",
+      address: req.location,
+      location: req.location,
+      customerType: "INDIVIDUAL",
+      preferredMakes: req.make,
+      preferredModels: req.model,
+      budgetMin: req.expectedPrice,
+      budgetMax: req.expectedPrice,
+      preferredYear: req.year,
+      preferredFuel: "Any",
+      preferredTrans: "Automatic",
+      preferredBody: "SUV",
+      assignedSalespersonId: "usr-2",
+      assignedSalespersonName: "James Omondi",
+      pipelineStage: "NEW",
+      notes: `Sell / Trade-In Evaluation: ${req.year} ${req.make} ${req.model} (${req.mileage.toLocaleString()} km, ${req.condition}) — Expected ${formatKSh(
+        req.expectedPrice
+      )}. ${req.notes}`,
+    });
+
+    const targetVeh =
+      vehicles.find((v) => v.id === req.targetVehicleId) || vehicles[0];
+    if (targetVeh) {
+      addLead({
+        customerId: newCust.id,
+        customerName: newCust.fullName,
+        customerPhone: newCust.phone,
+        vehicleId: targetVeh.id,
+        vehicleTitle: `${targetVeh.year} ${targetVeh.make} ${targetVeh.model}`,
+        vehicleStockNo: targetVeh.stockNumber,
+        askingPrice: targetVeh.askingPrice,
+        source: "WEBSITE",
+        assignedSalespersonId: "usr-2",
+        assignedSalespersonName: "James Omondi",
+        budget: req.expectedPrice,
+        expectedPurchaseDate: now,
+        stage: "QUALIFIED",
+        probability: 50,
+        nextFollowUpAt: now,
+        notes: `[TRADE-IN / SELL EVALUATION] Customer offering ${req.year} ${req.make} ${req.model} (${req.mileage.toLocaleString()} km, Condition: ${req.condition}) valued at ${formatKSh(
+          req.expectedPrice
+        )}. ${req.notes}`,
+      });
+    }
+
+    return created;
+  };
+
   return (
     <DealershipContext.Provider
       value={{
@@ -939,6 +1104,9 @@ export function DealershipProvider({
         testDrives,
         reservations,
         sales,
+        aiSettings,
+        aiConversations,
+        tradeInRequests,
         addVehicle,
         updateVehicleStatus,
         updateVehiclePrice,
@@ -958,6 +1126,10 @@ export function DealershipProvider({
         expireOverdueReservations,
         addSale,
         markSalePaid,
+        updateAISettings,
+        upsertAIConversation,
+        sendStaffReplyToConversation,
+        addTradeInRequest,
       }}
     >
       {children}

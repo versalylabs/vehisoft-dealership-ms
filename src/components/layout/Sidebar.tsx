@@ -20,6 +20,8 @@ import {
   ChevronDown,
   ChevronRight,
   ShieldCheck,
+  Bot,
+  Globe,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { ROLE_LABELS } from "@/lib/auth";
@@ -49,6 +51,7 @@ export function Sidebar({
   const { user, permissions } = useAuth();
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    "Website & AI": true,
     Sales: true,
     Inventory: true,
     Reports: false,
@@ -65,6 +68,16 @@ export function Sidebar({
       href: "/",
       icon: <LayoutDashboard className="w-5 h-5" />,
       visible: true,
+    },
+    {
+      label: "Website & AI",
+      icon: <Bot className="w-5 h-5 text-blue-400" />,
+      visible: true,
+      children: [
+        { label: "Public Website (Live)", href: "/showroom" },
+        { label: "AI Conversations", href: "/ai-conversations" },
+        { label: "AI Agent Settings", href: "/ai-settings" },
+      ],
     },
     {
       label: "Sales",
