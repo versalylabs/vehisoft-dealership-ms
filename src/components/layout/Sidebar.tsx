@@ -65,7 +65,7 @@ export function Sidebar({
   const navItems: NavItem[] = [
     {
       label: "Dashboard",
-      href: "/",
+      href: "/dashboard",
       icon: <LayoutDashboard className="w-5 h-5" />,
       visible: true,
     },
@@ -74,7 +74,7 @@ export function Sidebar({
       icon: <Bot className="w-5 h-5 text-blue-400" />,
       visible: true,
       children: [
-        { label: "Public Website (Live)", href: "/showroom" },
+        { label: "Public Website (Live)", href: "/" },
         { label: "AI Conversations", href: "/ai-conversations" },
         { label: "AI Agent Settings", href: "/ai-settings" },
       ],
@@ -167,7 +167,7 @@ export function Sidebar({
       >
         {/* Brand Header */}
         <div className="h-16 shrink-0 px-5 flex items-center justify-between border-b border-slate-800">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/dashboard" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/30">
               <Car className="w-5 h-5" />
             </div>

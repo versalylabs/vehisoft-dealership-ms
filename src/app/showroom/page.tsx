@@ -256,7 +256,7 @@ export default function PublicDealershipShowroomPage() {
             </Link>
             <span className="text-slate-700">•</span>
             <Link
-              href="/"
+              href="/dashboard"
               className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full font-semibold transition-colors"
             >
               <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
@@ -1380,7 +1380,7 @@ export default function PublicDealershipShowroomPage() {
             {aiSettings.agentName} AI.
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/" className="hover:text-white">
+            <Link href="/dashboard" className="hover:text-white">
               Staff Dashboard
             </Link>
             <Link href="/ai-conversations" className="hover:text-white">

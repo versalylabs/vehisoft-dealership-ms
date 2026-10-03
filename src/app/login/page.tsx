@@ -23,12 +23,12 @@ export default function LoginPage() {
       );
       return;
     }
-    router.push("/");
+    router.push("/dashboard");
   };
 
   const handleQuickRoleSignIn = (role: UserRole) => {
     switchUserByRole(role);
-    router.push("/");
+    router.push("/dashboard");
   };
 
   return (

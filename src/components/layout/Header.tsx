@@ -53,7 +53,7 @@ export function Header({
       {/* Right: Quick Actions + Interactive RBAC Role Switcher + Sign Out */}
       <div className="flex items-center gap-2.5">
         <Link
-          href="/showroom"
+          href="/"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
         >
           <Globe className="w-3.5 h-3.5 text-indigo-600" />

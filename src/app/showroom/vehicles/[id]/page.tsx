@@ -194,7 +194,7 @@ export default function PublicVehicleDetailPage() {
       <div className="bg-slate-950 text-slate-300 text-xs border-b border-slate-800 px-4 sm:px-8 py-2">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <Link
-            href="/showroom"
+            href="/"
             className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white font-semibold"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export default function PublicVehicleDetailPage() {
               View Internal Admin Record →
             </Link>
             <Link
-              href="/"
+              href="/dashboard"
               className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full font-semibold"
             >
               <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
