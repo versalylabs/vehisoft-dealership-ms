@@ -424,7 +424,7 @@ export function AISalesAgentWidget({
 
       {/* AI Sales Consultant Drawer / Modal */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[440px] h-[640px] max-h-[calc(100vh-3rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[440px] h-[640px] max-h-[calc(100vh-3rem)] rb-liquid-glass rounded-2xl shadow-2xl flex flex-col overflow-hidden">
           {/* Header */}
           <div
             className={`px-4 py-3.5 text-white shrink-0 transition-colors ${

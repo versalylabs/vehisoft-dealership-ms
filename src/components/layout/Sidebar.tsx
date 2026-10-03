@@ -261,9 +261,9 @@ export function Sidebar({
         </nav>
 
         {/* Active User & Role Footer */}
-        <div className="p-4 shrink-0 border-t border-slate-800 bg-slate-950/50">
+        <div className="p-3.5 m-2.5 rounded-xl shrink-0 rb-liquid-glass-dark">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-semibold text-sm">
+            <div className="w-9 h-9 rounded-full bg-blue-600/25 border border-blue-400/40 flex items-center justify-center text-blue-300 font-semibold text-sm shadow-inner">
               {user.name
                 .split(" ")
                 .map((n) => n[0])

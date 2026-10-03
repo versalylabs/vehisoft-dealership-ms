@@ -267,7 +267,7 @@ export default function PublicDealershipShowroomPage() {
       </div>
 
       {/* Main Public Dealership Website Navigation */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
+      <header className="sticky top-0 z-40 rb-liquid-glass border-b border-white/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <Link href="/showroom" className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export default function PublicDealershipShowroomPage() {
                 <ChevronDown className="w-4 h-4 text-slate-400" />
               </a>
               {vehiclesMenuOpen && (
-                <div className="absolute left-0 top-full w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+                <div className="absolute left-0 top-full w-56 rb-liquid-glass rounded-xl shadow-xl py-2 z-50">
                   <a
                     href="#vehicles-catalog"
                     onClick={() => {
@@ -409,7 +409,7 @@ export default function PublicDealershipShowroomPage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full rb-liquid-glass-dark text-blue-300 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5" />
               <span>
                 24/7 AI Digital Sales Consultant • Connected to Live Showroom Stock
@@ -442,7 +442,7 @@ export default function PublicDealershipShowroomPage() {
               <button
                 type="button"
                 onClick={() => openAIWithPrompt()}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 backdrop-blur-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl rb-liquid-glass-dark hover:bg-white/20 text-white font-bold text-sm transition-all cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4 text-emerald-400" />
                 <span>Talk to an Agent (24/7 AI)</span>
@@ -465,7 +465,7 @@ export default function PublicDealershipShowroomPage() {
                     key={sample}
                     type="button"
                     onClick={() => openAIWithPrompt(sample)}
-                    className="text-xs bg-slate-800/90 hover:bg-blue-600/30 text-slate-200 hover:text-white border border-slate-700 hover:border-blue-400/50 rounded-full px-3.5 py-1.5 transition-all cursor-pointer"
+                    className="text-xs rb-liquid-glass-dark hover:bg-blue-600/30 text-slate-200 hover:text-white rounded-full px-3.5 py-1.5 transition-all cursor-pointer"
                   >
                     &ldquo;{sample}&rdquo;
                   </button>
@@ -477,7 +477,7 @@ export default function PublicDealershipShowroomPage() {
           {/* Right Hero Card: Featured Showroom Highlight */}
           <div className="lg:col-span-5">
             {publicInventory[0] && (
-              <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-5 shadow-2xl">
+              <div className="rb-liquid-glass-dark rounded-2xl p-5 shadow-2xl">
                 <div className="flex items-center justify-between mb-3">
                   <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     ★ Showroom Spotlight • Available Now
@@ -493,7 +493,7 @@ export default function PublicDealershipShowroomPage() {
                     alt={publicInventory[0].model}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute bottom-3 left-3 bg-slate-950/85 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/10">
+                  <div className="absolute bottom-3 left-3 rb-liquid-glass-dark px-3 py-1.5 rounded-lg">
                     <span className="text-xs text-slate-300 block">
                       Showroom Price
                     </span>
@@ -540,7 +540,7 @@ export default function PublicDealershipShowroomPage() {
 
       {/* 2. VEHICLE SEARCH BAR (Right below the Hero) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 -mt-8 relative z-20 w-full">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+        <div className="rb-liquid-glass rounded-2xl p-6">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
               <Search className="w-5 h-5 text-blue-600" />
@@ -569,7 +569,7 @@ export default function PublicDealershipShowroomPage() {
                   setSelectedMake(e.target.value);
                   setSelectedModel("ALL");
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="ALL">All Makes</option>
                 {availableMakes.map((make) => (
@@ -588,7 +588,7 @@ export default function PublicDealershipShowroomPage() {
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="ALL">Any Model</option>
                 {availableModels.map((model) => (
@@ -607,7 +607,7 @@ export default function PublicDealershipShowroomPage() {
               <select
                 value={selectedBudget}
                 onChange={(e) => setSelectedBudget(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="ALL">Any Budget</option>
                 <option value="UNDER_3M">Under KSh 3M</option>
@@ -625,7 +625,7 @@ export default function PublicDealershipShowroomPage() {
               <select
                 value={selectedBodyType}
                 onChange={(e) => setSelectedBodyType(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="ALL">Any Body Type</option>
                 <option value="SUV">SUV / 4x4</option>
@@ -670,7 +670,7 @@ export default function PublicDealershipShowroomPage() {
           </div>
 
           {/* Sub-navigation Tabs: All Vehicles | New Arrivals | Featured Vehicles */}
-          <div className="flex items-center gap-1.5 bg-slate-200/80 p-1.5 rounded-xl self-start">
+          <div className="flex items-center gap-1.5 rb-liquid-badge p-1.5 rounded-xl self-start">
             <button
               type="button"
               onClick={() => setCatalogTab("ALL")}
@@ -708,7 +708,7 @@ export default function PublicDealershipShowroomPage() {
         </div>
 
         {filteredVehicles.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+          <div className="rb-liquid-glass rounded-2xl p-12 text-center">
             <SlidersHorizontal className="w-10 h-10 text-slate-400 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-slate-900">
               No vehicles match those exact filters
@@ -749,7 +749,7 @@ export default function PublicDealershipShowroomPage() {
               return (
                 <div
                   key={vehicle.id}
-                  className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-blue-300 transition-all flex flex-col group"
+                  className="rb-glass-card rounded-2xl overflow-hidden flex flex-col group"
                 >
                   {/* Large Vehicle Image */}
                   <div className="relative h-56 bg-slate-100 overflow-hidden">
@@ -1153,7 +1153,7 @@ export default function PublicDealershipShowroomPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
               <div className="w-11 h-11 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
                 <BadgeDollarSign className="w-6 h-6" />
               </div>
@@ -1165,7 +1165,7 @@ export default function PublicDealershipShowroomPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
               <div className="w-11 h-11 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -1179,7 +1179,7 @@ export default function PublicDealershipShowroomPage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
               <div className="w-11 h-11 rounded-xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center">
                 <Handshake className="w-6 h-6" />
               </div>
@@ -1197,7 +1197,7 @@ export default function PublicDealershipShowroomPage() {
           {/* About Us Anchor Block */}
           <div
             id="about-us"
-            className="mt-12 p-8 rounded-2xl bg-slate-900 text-white grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
+            className="mt-12 p-8 rounded-2xl rb-liquid-glass-dark text-white grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
           >
             <div className="lg:col-span-8 space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
@@ -1287,7 +1287,7 @@ export default function PublicDealershipShowroomPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+          <div className="lg:col-span-7 rb-liquid-glass rounded-2xl p-6 sm:p-8">
             <h3 className="text-lg font-bold text-slate-900 mb-4">
               Send a Direct Showroom Inquiry
             </h3>

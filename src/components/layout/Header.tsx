@@ -30,7 +30,7 @@ export function Header({
   ];
 
   return (
-    <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 lg:px-8 flex items-center justify-between z-30">
+    <header className="h-16 shrink-0 rb-liquid-glass border-b border-white/60 px-4 lg:px-8 flex items-center justify-between z-30">
       {/* Left: Mobile Menu Trigger + Branch Info */}
       <div className="flex items-center gap-4">
         <button
@@ -42,7 +42,7 @@ export function Header({
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
+        <div className="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-700 rb-liquid-badge px-3.5 py-1.5 rounded-full">
           <Building2 className="w-3.5 h-3.5 text-blue-600" />
           <span>{user.branchName || "Ngong Road Showroom (HQ)"}</span>
           <span className="text-slate-300">•</span>
@@ -54,7 +54,7 @@ export function Header({
       <div className="flex items-center gap-2.5">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold rb-liquid-badge text-indigo-700 hover:bg-indigo-100/70 transition-colors"
         >
           <Globe className="w-3.5 h-3.5 text-indigo-600" />
           <span>Public Website & AI</span>
@@ -63,7 +63,7 @@ export function Header({
         {permissions.canManageCRM && (
           <Link
             href="/follow-ups"
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-50/80 backdrop-blur-md text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors"
           >
             <PhoneCall className="w-3.5 h-3.5 text-amber-600" />
             <span>Today&apos;s Follow-ups</span>
@@ -81,7 +81,7 @@ export function Header({
         )}
 
         {/* Role Switcher for testing RBAC permissions */}
-        <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1">
+        <div className="flex items-center gap-1.5 rb-liquid-badge rounded-lg px-2.5 py-1">
           <Shield className="w-3.5 h-3.5 text-blue-600 shrink-0" />
           <label htmlFor="rbac-role-select" className="sr-only">
             Switch Active Role
