@@ -13,7 +13,7 @@ export function LiquidGlassProvider() {
       const target = e.target as HTMLElement | null;
       if (!target) return;
       const card = target.closest(
-        ".rb-liquid-glass, .rb-liquid-glass-dark, .rb-glass-card, main .bg-white.rounded-2xl, main .bg-white.rounded-xl"
+        ".rb-liquid-glass, .rb-liquid-glass-dark, .rb-glass-card, .luxury-glass-card, .luxury-glass-nav, main .bg-white.rounded-2xl, main .bg-white.rounded-xl"
       ) as HTMLElement | null;
       if (card) {
         const rect = card.getBoundingClientRect();

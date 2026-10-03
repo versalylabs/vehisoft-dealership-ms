@@ -172,6 +172,119 @@ main .bg-white.rounded-xl > * {
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.38);
 }
 
+/* ==========================================================================
+   Executive Obsidian & Champagne Gold Luxury Showroom Theme
+   ========================================================================== */
+
+.luxury-obsidian-bg {
+  background-color: #06080e;
+  background-image:
+    radial-gradient(at 15% 10%, rgba(245, 158, 11, 0.11) 0px, transparent 45%),
+    radial-gradient(at 85% 15%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 60%, rgba(16, 185, 129, 0.06) 0px, transparent 55%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 64px 64px, 64px 64px;
+}
+
+.luxury-glass-nav {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(9, 13, 22, 0.82) 0%,
+    rgba(15, 23, 42, 0.72) 50%,
+    rgba(9, 13, 22, 0.86) 100%
+  );
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 1px 0 rgba(245, 158, 11, 0.18);
+}
+
+.luxury-glass-card {
+  position: relative;
+  background: linear-gradient(
+    155deg,
+    rgba(17, 24, 39, 0.78) 0%,
+    rgba(9, 13, 22, 0.88) 65%,
+    rgba(15, 23, 42, 0.82) 100%
+  );
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    0 24px 50px -15px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 1.5px 0 rgba(245, 158, 11, 0.12);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.luxury-glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    480px circle at var(--rb-mouse-x, 50%) var(--rb-mouse-y, 0%),
+    rgba(245, 158, 11, 0.16),
+    rgba(56, 189, 248, 0.08) 45%,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+
+.luxury-glass-card:hover::before {
+  opacity: 1;
+}
+
+.luxury-glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow:
+    0 30px 60px -15px rgba(0, 0, 0, 0.85),
+    0 0 35px -10px rgba(245, 158, 11, 0.22),
+    inset 0 1px 1.5px 0 rgba(253, 230, 138, 0.35),
+    inset 0 -1px 2px 0 rgba(56, 189, 248, 0.2);
+}
+
+.luxury-glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.luxury-gold-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  color: #05070b;
+  box-shadow:
+    0 10px 25px -5px rgba(245, 158, 11, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.65);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.luxury-gold-btn:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 32px -6px rgba(245, 158, 11, 0.55),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.85);
+}
+
+.luxury-gold-text {
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 45%, #f59e0b 85%, #fde68a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Custom scrollbar for Kanban pipeline and data tables */
 ::-webkit-scrollbar {
   width: 6px;
@@ -190,3 +303,4 @@ main .bg-white.rounded-xl > * {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+

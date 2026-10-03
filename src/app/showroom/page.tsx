@@ -25,6 +25,12 @@ import {
   SlidersHorizontal,
   LayoutDashboard,
   Bot,
+  Award,
+  Compass,
+  Zap,
+  Star,
+  ChevronRight,
+  Lock,
 } from "lucide-react";
 import { useDealership } from "@/context/DealershipContext";
 import { getVehiclePublicProfile } from "@/lib/ai-sales-agent";
@@ -49,6 +55,9 @@ export default function PublicDealershipShowroomPage() {
   const [selectedBodyType, setSelectedBodyType] = useState<string>("ALL");
   const [catalogTab, setCatalogTab] = useState<VehicleCatalogTab>("ALL");
   const [vehiclesMenuOpen, setVehiclesMenuOpen] = useState<boolean>(false);
+
+  // Interactive Hero Spotlight Vehicle Index
+  const [spotlightIdx, setSpotlightIdx] = useState<number>(0);
 
   // AI Agent Drawer State
   const [aiOpen, setAiOpen] = useState<boolean>(false);
@@ -84,7 +93,7 @@ export default function PublicDealershipShowroomPage() {
   const [contactMessage, setContactMessage] = useState("");
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  // Only show AVAILABLE (and RESERVED) vehicles on public website; SOLD vehicles are automatically removed!
+  // Only show AVAILABLE vehicles on public website; SOLD vehicles are automatically removed!
   const publicInventory = useMemo(() => {
     return vehicles.filter((v) => v.status === "AVAILABLE");
   }, [vehicles]);
@@ -92,6 +101,13 @@ export default function PublicDealershipShowroomPage() {
   const soldCount = useMemo(() => {
     return vehicles.filter((v) => v.status === "SOLD").length;
   }, [vehicles]);
+
+  const spotlightVehicles = useMemo(() => {
+    return publicInventory.slice(0, 4);
+  }, [publicInventory]);
+
+  const activeSpotlight =
+    spotlightVehicles[spotlightIdx] || spotlightVehicles[0];
 
   const availableMakes = useMemo(() => {
     return Array.from(new Set(publicInventory.map((v) => v.make))).sort();
@@ -145,6 +161,14 @@ export default function PublicDealershipShowroomPage() {
     setAiFocusedVehicleId(vehicleId);
     setAiInitialPrompt(prompt);
     setAiOpen(true);
+  };
+
+  const resetFilters = () => {
+    setSelectedMake("ALL");
+    setSelectedModel("ALL");
+    setSelectedBudget("ALL");
+    setSelectedBodyType("ALL");
+    setCatalogTab("ALL");
   };
 
   const handleTradeInSubmit = (e: React.FormEvent) => {
@@ -231,55 +255,60 @@ export default function PublicDealershipShowroomPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* Top Dealership Sync & Admin Switcher Ribbon */}
-      <div className="bg-slate-950 text-slate-300 text-xs border-b border-slate-800 px-4 sm:px-8 py-2">
+    <div className="min-h-screen luxury-obsidian-bg text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950">
+      {/* Top Executive Telemetry & Live CRM Sync Ribbon */}
+      <div className="bg-[#04060a]/90 border-b border-white/10 text-slate-400 text-[11px] px-4 sm:px-8 py-2.5 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live Inventory Connected ({publicInventory.length} Available •{" "}
-              {soldCount} Sold & Auto-Hidden)
+            <span className="inline-flex items-center gap-2 text-emerald-400 font-semibold tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 -ml-4" />
+              LIVE SHOWROOM INVENTORY ({publicInventory.length} AVAILABLE •{" "}
+              {soldCount} SOLD & AUTO-ARCHIVED)
             </span>
-            <span className="hidden md:inline text-slate-500">|</span>
-            <span className="hidden md:inline text-slate-400">
-              📍 {aiSettings.location}
+            <span className="hidden md:inline text-white/15">|</span>
+            <span className="hidden md:inline-flex items-center gap-1.5 text-slate-300">
+              <MapPin className="w-3.5 h-3.5 text-amber-400" />
+              {aiSettings.location}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <Link
               href="/ai-conversations"
-              className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1"
+              className="text-amber-300 hover:text-amber-200 font-semibold flex items-center gap-1.5 transition-colors"
             >
-              <Bot className="w-3.5 h-3.5" />
-              <span>View AI Conversations in Admin</span>
+              <Bot className="w-3.5 h-3.5 text-amber-400" />
+              <span>AI Sales Logs</span>
             </Link>
-            <span className="text-slate-700">•</span>
+            <span className="text-white/15">•</span>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white px-3 py-1 rounded-full font-semibold transition-all"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
-              <span>Dealership Admin CRM →</span>
+              <Lock className="w-3 h-3 text-amber-400" />
+              <span>Staff & Admin CRM →</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Main Public Dealership Website Navigation */}
-      <header className="sticky top-0 z-40 rb-liquid-glass border-b border-white/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between gap-4">
-          {/* Brand Logo */}
-          <Link href="/showroom" className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-600/25">
-              <Car className="w-6 h-6" />
+      {/* Floating Executive Liquid-Glass Navigation Bar */}
+      <header className="sticky top-3 z-40 px-4 sm:px-8 mt-3">
+        <div className="max-w-7xl mx-auto luxury-glass-nav rounded-2xl px-4 sm:px-7 h-20 flex items-center justify-between gap-4">
+          {/* Bespoke Luxury Dealership Crest */}
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 p-[1px] shadow-lg shadow-amber-500/20">
+              <div className="w-full h-full bg-[#070a12] rounded-[11px] flex items-center justify-center">
+                <Car className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+              </div>
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-slate-900 block leading-none">
-                VEHISOFT <span className="text-blue-600">MOTORS</span>
+              <span className="font-black text-lg sm:text-xl tracking-tight text-white block leading-none">
+                VEHISOFT{" "}
+                <span className="luxury-gold-text font-black">EXECUTIVE</span>
               </span>
-              <span className="text-[11px] font-semibold text-slate-500 tracking-wider uppercase block mt-1">
-                Premier Kenya Showroom • KSh.
+              <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase block mt-1">
+                Nairobi Luxury Showroom • KSh
               </span>
             </div>
           </Link>
@@ -288,9 +317,9 @@ export default function PublicDealershipShowroomPage() {
           <nav className="hidden lg:flex items-center gap-1">
             <a
               href="#top"
-              className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
             >
-              Home
+              Showroom
             </a>
 
             {/* Vehicles Dropdown (All Vehicles, New Arrivals, Featured Vehicles) */}
@@ -302,158 +331,165 @@ export default function PublicDealershipShowroomPage() {
               <a
                 href="#vehicles-catalog"
                 onClick={() => setVehiclesMenuOpen((v) => !v)}
-                className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-800 hover:text-blue-600 hover:bg-slate-50 transition-colors inline-flex items-center gap-1"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all inline-flex items-center gap-1.5"
               >
-                <span>Vehicles</span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
+                <span>Collection</span>
+                <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
               </a>
               {vehiclesMenuOpen && (
-                <div className="absolute left-0 top-full w-56 rb-liquid-glass rounded-xl shadow-xl py-2 z-50">
-                  <a
-                    href="#vehicles-catalog"
-                    onClick={() => {
-                      setCatalogTab("ALL");
-                      setVehiclesMenuOpen(false);
-                    }}
-                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span>All Vehicles</span>
-                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">
-                      {publicInventory.length}
-                    </span>
-                  </a>
-                  <a
-                    href="#vehicles-catalog"
-                    onClick={() => {
-                      setCatalogTab("NEW_ARRIVALS");
-                      setVehiclesMenuOpen(false);
-                    }}
-                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span>New Arrivals</span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px]">
-                      Fresh Import
-                    </span>
-                  </a>
-                  <a
-                    href="#vehicles-catalog"
-                    onClick={() => {
-                      setCatalogTab("FEATURED");
-                      setVehiclesMenuOpen(false);
-                    }}
-                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span>Featured Vehicles</span>
-                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px]">
-                      Top Picks
-                    </span>
-                  </a>
+                <div className="absolute left-0 top-full pt-2 w-64 z-50">
+                  <div className="luxury-glass-nav rounded-2xl p-2 shadow-2xl border border-white/15">
+                    <a
+                      href="#vehicles-catalog"
+                      onClick={() => {
+                        setCatalogTab("ALL");
+                        setVehiclesMenuOpen(false);
+                      }}
+                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-amber-300 transition-colors"
+                    >
+                      <span>All Available Vehicles</span>
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-amber-300 text-[10px] font-bold">
+                        {publicInventory.length}
+                      </span>
+                    </a>
+                    <a
+                      href="#vehicles-catalog"
+                      onClick={() => {
+                        setCatalogTab("NEW_ARRIVALS");
+                        setVehiclesMenuOpen(false);
+                      }}
+                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-amber-300 transition-colors"
+                    >
+                      <span>New Showroom Arrivals</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                        Fresh Import
+                      </span>
+                    </a>
+                    <a
+                      href="#vehicles-catalog"
+                      onClick={() => {
+                        setCatalogTab("FEATURED");
+                        setVehiclesMenuOpen(false);
+                      }}
+                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-amber-300 transition-colors"
+                    >
+                      <span>Featured Flagship Stock</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
+                        Curated
+                      </span>
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
 
             <a
-              href="#about-us"
-              className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+              href="#ai-concierge"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
             >
-              About Us
+              AI Concierge
+            </a>
+            <a
+              href="#sell-trade-in"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
+            >
+              Sell / Trade-In
             </a>
             <a
               href="#services"
-              className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
             >
               Services
             </a>
             <a
-              href="#sell-trade-in"
-              className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+              href="#about-us"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
             >
-              Sell / Trade In
+              Heritage
             </a>
             <a
               href="#contact"
-              className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-200 hover:text-amber-300 hover:bg-white/5 transition-all"
             >
               Contact
             </a>
           </nav>
 
           {/* AI Assistant CTA Button */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => openAIWithPrompt()}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-600/20 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 luxury-gold-btn px-4 py-2.5 rounded-xl text-xs font-extrabold tracking-wide cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-blue-200" />
-              <span>AI Assistant ({aiSettings.agentName})</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-slate-950" />
+              <span>{aiSettings.agentName} AI Concierge</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-900 animate-pulse" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* 1. HERO SECTION */}
-      <section
-        id="top"
-        className="relative bg-slate-900 text-white overflow-hidden"
-      >
-        <div
-          className="absolute inset-0 opacity-30 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1800&q=80')",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-900/60" />
+      {/* 1. CINEMATIC EXECUTIVE HERO SECTION */}
+      <section id="top" className="relative overflow-hidden pt-8 pb-20 lg:py-20">
+        {/* Ambient Luxury Glow Orbs */}
+        <div className="pointer-events-none absolute -top-28 left-1/4 w-[550px] h-[550px] rounded-full bg-amber-500/15 blur-[140px]" />
+        <div className="pointer-events-none absolute top-16 right-10 w-[500px] h-[500px] rounded-full bg-sky-500/12 blur-[140px]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          {/* Left Column: Editorial Headline + AI Prompt Pills + Telemetry */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full rb-liquid-glass-dark text-blue-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-bold tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>
-                24/7 AI Digital Sales Consultant • Connected to Live Showroom Stock
+                24/7 AI DIGITAL SALES CONSULTANT • LIVE SHOWROOM TELEMETRY
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
+            <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight text-white leading-[1.06]">
               Find Your Next Car{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+              <span className="luxury-gold-text block mt-1">
                 With Confidence.
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
-              Browse our latest vehicles, compare options and get assistance
-              from our AI sales agent anytime. Every vehicle in our Ngong Road
-              and Westlands showrooms is QISJ-inspected, mileage-verified, and
-              ready for test drive or bank financing.
+            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed font-normal">
+              Experience East Africa&apos;s premier digital showroom. Browse our
+              live QISJ-verified collection, structure tailored bank financing,
+              or let <strong className="text-white">{aiSettings.agentName}</strong>{" "}
+              — our 24/7 AI Sales Consultant — match you with the ideal vehicle
+              and book your private test drive.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            {/* Primary Hero CTAs */}
+            <div className="flex flex-wrap items-center gap-4 pt-1">
               <a
                 href="#vehicles-catalog"
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all"
+                className="inline-flex items-center gap-3 px-7 py-4 rounded-xl luxury-gold-btn font-black text-sm tracking-wide"
               >
                 <Car className="w-4 h-4" />
-                <span>Browse Vehicles ({publicInventory.length})</span>
+                <span>Explore Collection ({publicInventory.length} Live)</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
 
               <button
                 type="button"
                 onClick={() => openAIWithPrompt()}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl rb-liquid-glass-dark hover:bg-white/20 text-white font-bold text-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-xl luxury-glass-card text-white hover:text-amber-300 font-bold text-sm cursor-pointer"
               >
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
-                <span>Talk to an Agent (24/7 AI)</span>
+                <MessageSquare className="w-4 h-4 text-amber-400" />
+                <span>Talk to AI Sales Agent (24/7)</span>
               </button>
             </div>
 
-            {/* Quick interactive AI prompt pills right in the Hero */}
+            {/* Interactive AI Concierge Quick Prompts */}
             <div className="pt-4 border-t border-white/10">
-              <p className="text-xs font-semibold text-slate-400 mb-2.5">
-                Try asking our AI Sales Consultant right now:
-              </p>
+              <div className="flex items-center gap-2 mb-3">
+                <Bot className="w-4 h-4 text-amber-400" />
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Instant AI Consultation — Click a prompt to test live inventory search:
+                </p>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {[
                   "I'm looking for a Toyota around 4 million",
@@ -465,71 +501,189 @@ export default function PublicDealershipShowroomPage() {
                     key={sample}
                     type="button"
                     onClick={() => openAIWithPrompt(sample)}
-                    className="text-xs rb-liquid-glass-dark hover:bg-blue-600/30 text-slate-200 hover:text-white rounded-full px-3.5 py-1.5 transition-all cursor-pointer"
+                    className="text-xs bg-white/[0.04] hover:bg-amber-500/15 text-slate-200 hover:text-amber-300 border border-white/10 hover:border-amber-400/40 rounded-full px-4 py-2 transition-all cursor-pointer flex items-center gap-1.5"
                   >
-                    &ldquo;{sample}&rdquo;
+                    <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                    <span>&ldquo;{sample}&rdquo;</span>
                   </button>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Right Hero Card: Featured Showroom Highlight */}
-          <div className="lg:col-span-5">
-            {publicInventory[0] && (
-              <div className="rb-liquid-glass-dark rounded-2xl p-5 shadow-2xl">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    ★ Showroom Spotlight • Available Now
+            {/* Executive Trust Metrics Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+              {[
+                {
+                  value: "Grade 4.5+",
+                  label: "QISJ / JEVIC Certified",
+                },
+                {
+                  value: "From 20%",
+                  label: "Bank Finance Deposit",
+                },
+                {
+                  value: "24/7 Live",
+                  label: "AI Sales Concierge",
+                },
+                {
+                  value: "Same-Day",
+                  label: "NTSA TIMS Transfer",
+                },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="p-3 rounded-xl bg-white/[0.03] border border-white/10"
+                >
+                  <span className="text-sm sm:text-base font-black text-amber-400 block">
+                    {stat.value}
                   </span>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Stock #{publicInventory[0].stockNumber}
+                  <span className="text-[11px] text-slate-400 font-medium">
+                    {stat.label}
                   </span>
                 </div>
-                <div className="relative h-52 rounded-xl overflow-hidden mb-4 bg-slate-800">
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Interactive Multi-Vehicle Flagship Spotlight Card */}
+          <div className="lg:col-span-5">
+            {activeSpotlight && (
+              <div className="luxury-glass-card rounded-3xl p-5 sm:p-6 relative">
+                {/* Top Header & Spotlight Selector Pills */}
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+                    <Star className="w-3 h-3 fill-emerald-400 text-emerald-400" />
+                    <span>Showroom Flagship Spotlight</span>
+                  </div>
+
+                  {/* Interactive 01 / 02 / 03 / 04 Vehicle Switcher */}
+                  <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+                    {spotlightVehicles.map((v, idx) => (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSpotlightIdx(idx)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
+                          spotlightIdx === idx
+                            ? "bg-amber-400 text-slate-950 shadow"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                        title={`${v.year} ${v.make} ${v.model}`}
+                      >
+                        0{idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Main Spotlight Image */}
+                <div className="relative h-60 sm:h-64 rounded-2xl overflow-hidden mb-5 bg-slate-950 border border-white/10 group">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={publicInventory[0].imageUrl}
-                    alt={publicInventory[0].model}
-                    className="w-full h-full object-cover"
+                    src={activeSpotlight.imageUrl}
+                    alt={`${activeSpotlight.year} ${activeSpotlight.make} ${activeSpotlight.model}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute bottom-3 left-3 rb-liquid-glass-dark px-3 py-1.5 rounded-lg">
-                    <span className="text-xs text-slate-300 block">
-                      Showroom Price
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#06080e] via-transparent to-black/30" />
+
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-black/75 text-amber-300 border border-amber-400/30 backdrop-blur-md">
+                      Stock #{activeSpotlight.stockNumber}
                     </span>
-                    <span className="text-lg font-extrabold text-white">
-                      {formatKSh(publicInventory[0].askingPrice)}
+                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-black/75 text-white border border-white/15 backdrop-blur-md">
+                      {activeSpotlight.bodyType}
+                    </span>
+                  </div>
+
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300 block">
+                        Executive Showroom Price
+                      </span>
+                      <span className="text-2xl font-black text-white">
+                        {formatKSh(activeSpotlight.askingPrice)}
+                      </span>
+                    </div>
+                    <div className="text-right bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15">
+                      <span className="text-[10px] text-slate-400 block">
+                        Est. 48-Mo Bank Finance
+                      </span>
+                      <span className="text-xs font-extrabold text-emerald-400">
+                        {formatKSh(
+                          Math.round(
+                            (activeSpotlight.askingPrice * 0.8 * 1.24) / 48
+                          )
+                        )}
+                        /mo
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vehicle Title & Telemetry Grid */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-xl font-black text-white">
+                      {activeSpotlight.year} {activeSpotlight.make}{" "}
+                      {activeSpotlight.model}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">
+                      {activeSpotlight.variant} • Located at{" "}
+                      <span className="text-slate-200">
+                        {activeSpotlight.location}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2.5 my-4 p-3 rounded-2xl bg-black/40 border border-white/10 text-center">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                      Mileage
+                    </span>
+                    <span className="text-xs font-extrabold text-white">
+                      {activeSpotlight.mileage.toLocaleString()} km
+                    </span>
+                  </div>
+                  <div className="border-x border-white/10">
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                      Transmission
+                    </span>
+                    <span className="text-xs font-extrabold text-white">
+                      {activeSpotlight.transmission}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 block">
+                      Powertrain
+                    </span>
+                    <span className="text-xs font-extrabold text-amber-300">
+                      {activeSpotlight.fuelType}
                     </span>
                   </div>
                 </div>
-                <h3 className="text-lg font-bold text-white">
-                  {publicInventory[0].year} {publicInventory[0].make}{" "}
-                  {publicInventory[0].model} {publicInventory[0].variant}
-                </h3>
-                <p className="text-xs text-slate-300 mt-1">
-                  {publicInventory[0].mileage.toLocaleString()} km •{" "}
-                  {publicInventory[0].fuelType} •{" "}
-                  {publicInventory[0].transmission} •{" "}
-                  {publicInventory[0].location}
-                </p>
-                <div className="grid grid-cols-2 gap-2.5 mt-4">
+
+                {/* Spotlight Actions */}
+                <div className="grid grid-cols-2 gap-3">
                   <Link
-                    href={`/showroom/vehicles/${publicInventory[0].id}`}
-                    className="py-2.5 px-4 rounded-xl bg-white text-slate-950 font-bold text-xs text-center hover:bg-slate-100 transition-colors"
+                    href={`/showroom/vehicles/${activeSpotlight.id}`}
+                    className="py-3 px-4 rounded-xl luxury-gold-btn font-extrabold text-xs text-center flex items-center justify-center gap-1.5"
                   >
-                    View Vehicle Details
+                    <span>Inspect Vehicle</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                   <button
                     type="button"
                     onClick={() =>
                       openAIWithPrompt(
-                        `Tell me about the ${publicInventory[0].year} ${publicInventory[0].make} ${publicInventory[0].model}`,
-                        publicInventory[0].id
+                        `Tell me about the ${activeSpotlight.year} ${activeSpotlight.make} ${activeSpotlight.model}`,
+                        activeSpotlight.id
                       )
                     }
-                    className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs text-center transition-colors cursor-pointer"
+                    className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    Ask AI About This Car
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Ask AI Concierge</span>
                   </button>
                 </div>
               </div>
@@ -538,30 +692,40 @@ export default function PublicDealershipShowroomPage() {
         </div>
       </section>
 
-      {/* 2. VEHICLE SEARCH BAR (Right below the Hero) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 -mt-8 relative z-20 w-full">
-        <div className="rb-liquid-glass rounded-2xl p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-blue-600" />
-              <h2 className="text-base sm:text-lg font-bold text-slate-900">
-                What are you looking for?
-              </h2>
+      {/* 2. FLOATING COMMAND-CENTER VEHICLE SEARCH BAR */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 -mt-6 relative z-20 w-full">
+        <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-400">
+                <Search className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-black text-white">
+                  What are you looking for?
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Filter our live Nairobi showroom inventory by make, model,
+                  budget, or body style
+                </p>
+              </div>
             </div>
-            <span className="text-xs text-slate-500">
-              Showing{" "}
-              <strong className="text-slate-900">
-                {filteredVehicles.length}
-              </strong>{" "}
-              live vehicles from dealership inventory
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-300 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full">
+                Matching Stock:{" "}
+                <strong className="text-amber-400 font-black">
+                  {filteredVehicles.length}
+                </strong>{" "}
+                of {publicInventory.length} Vehicles
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Make */}
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                Make
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Make / Marque
               </label>
               <select
                 value={selectedMake}
@@ -569,9 +733,9 @@ export default function PublicDealershipShowroomPage() {
                   setSelectedMake(e.target.value);
                   setSelectedModel("ALL");
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-3 rounded-xl border border-white/15 text-sm font-semibold bg-[#0b101b] text-white focus:border-amber-400 focus:outline-none"
               >
-                <option value="ALL">All Makes</option>
+                <option value="ALL">All Makes ({availableMakes.length})</option>
                 {availableMakes.map((make) => (
                   <option key={make} value={make}>
                     {make}
@@ -582,13 +746,13 @@ export default function PublicDealershipShowroomPage() {
 
             {/* Model */}
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                Model
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Model Series
               </label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-3 rounded-xl border border-white/15 text-sm font-semibold bg-[#0b101b] text-white focus:border-amber-400 focus:outline-none"
               >
                 <option value="ALL">Any Model</option>
                 {availableModels.map((model) => (
@@ -601,37 +765,37 @@ export default function PublicDealershipShowroomPage() {
 
             {/* Budget */}
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                Budget (KSh.)
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Budget Range (KSh.)
               </label>
               <select
                 value={selectedBudget}
                 onChange={(e) => setSelectedBudget(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-3 rounded-xl border border-white/15 text-sm font-semibold bg-[#0b101b] text-white focus:border-amber-400 focus:outline-none"
               >
                 <option value="ALL">Any Budget</option>
-                <option value="UNDER_3M">Under KSh 3M</option>
-                <option value="2M_4M">KSh 2M – 4.2M</option>
-                <option value="4M_6M">KSh 4M – 6M</option>
-                <option value="ABOVE_6M">Above KSh 6M</option>
+                <option value="UNDER_3M">Under KSh 3.0M</option>
+                <option value="2M_4M">KSh 2.0M – 4.2M</option>
+                <option value="4M_6M">KSh 4.0M – 6.0M</option>
+                <option value="ABOVE_6M">Above KSh 6.0M</option>
               </select>
             </div>
 
             {/* Body Type */}
             <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
-                Body Type
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                Body Style
               </label>
               <select
                 value={selectedBodyType}
                 onChange={(e) => setSelectedBodyType(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-medium bg-white/80 backdrop-blur-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full px-3.5 py-3 rounded-xl border border-white/15 text-sm font-semibold bg-[#0b101b] text-white focus:border-amber-400 focus:outline-none"
               >
                 <option value="ALL">Any Body Type</option>
-                <option value="SUV">SUV / 4x4</option>
-                <option value="Sedan">Sedan</option>
-                <option value="Hatchback">Hatchback</option>
-                <option value="Pickup">Pickup / Double Cab</option>
+                <option value="SUV">Executive SUV / 4x4</option>
+                <option value="Sedan">Luxury Sedan</option>
+                <option value="Hatchback">Compact / Hatchback</option>
+                <option value="Pickup">Double Cab / Pickup</option>
               </select>
             </div>
 
@@ -639,12 +803,105 @@ export default function PublicDealershipShowroomPage() {
             <div className="flex items-end gap-2">
               <a
                 href="#vehicles-catalog"
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl text-center shadow-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 luxury-gold-btn font-extrabold text-sm rounded-xl text-center flex items-center justify-center gap-2"
               >
                 <Search className="w-4 h-4" />
                 <span>Search Vehicles</span>
               </a>
             </div>
+          </div>
+
+          {/* Quick Lifestyle Filter Pills */}
+          <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                Quick Filters:
+              </span>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedMake === "ALL" &&
+                  selectedBodyType === "ALL" &&
+                  selectedBudget === "ALL" &&
+                  catalogTab === "ALL"
+                    ? "bg-amber-400 text-slate-950 font-bold"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                All Stock ({publicInventory.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetFilters();
+                  setSelectedBodyType("SUV");
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedBodyType === "SUV"
+                    ? "bg-amber-400 text-slate-950 font-bold"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                4x4 & Executive SUVs
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetFilters();
+                  setSelectedMake("Toyota");
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedMake === "Toyota"
+                    ? "bg-amber-400 text-slate-950 font-bold"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Toyota Collection
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetFilters();
+                  setSelectedBudget("2M_4M");
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedBudget === "2M_4M"
+                    ? "bg-amber-400 text-slate-950 font-bold"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Budget KSh 2M – 4.2M
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetFilters();
+                  setCatalogTab("NEW_ARRIVALS");
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  catalogTab === "NEW_ARRIVALS"
+                    ? "bg-amber-400 text-slate-950 font-bold"
+                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                Fresh Japan/UK Imports
+              </button>
+            </div>
+
+            {(selectedMake !== "ALL" ||
+              selectedModel !== "ALL" ||
+              selectedBudget !== "ALL" ||
+              selectedBodyType !== "ALL" ||
+              catalogTab !== "ALL") && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-xs font-bold text-amber-400 hover:text-amber-300 underline cursor-pointer"
+              >
+                Clear Active Filters
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -652,32 +909,33 @@ export default function PublicDealershipShowroomPage() {
       {/* 3. FEATURED & LIVE VEHICLES CATALOG */}
       <section
         id="vehicles-catalog"
-        className="max-w-7xl mx-auto px-4 sm:px-8 py-14 w-full"
+        className="max-w-7xl mx-auto px-4 sm:px-8 py-16 w-full"
       >
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              Real-Time Dealership Stock
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-              Explore Our Showroom Inventory
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-400">
+              <Compass className="w-4 h-4" />
+              <span>Real-Time Dealership Collection</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-white mt-1.5 tracking-tight">
+              Curated Showroom Inventory
             </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Connected directly to our dealership management system. Newly
-              added vehicles appear automatically; sold vehicles are removed
-              instantly.
+            <p className="text-sm text-slate-400 mt-1.5 max-w-2xl">
+              Synchronized directly with our Dealership Management System. When
+              staff adds a vehicle, it appears here automatically; when marked
+              Sold, it is removed immediately.
             </p>
           </div>
 
           {/* Sub-navigation Tabs: All Vehicles | New Arrivals | Featured Vehicles */}
-          <div className="flex items-center gap-1.5 rb-liquid-badge p-1.5 rounded-xl self-start">
+          <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/10 p-1.5 rounded-2xl self-start">
             <button
               type="button"
               onClick={() => setCatalogTab("ALL")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 catalogTab === "ALL"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "luxury-gold-btn"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
               All Vehicles ({publicInventory.length})
@@ -685,10 +943,10 @@ export default function PublicDealershipShowroomPage() {
             <button
               type="button"
               onClick={() => setCatalogTab("NEW_ARRIVALS")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 catalogTab === "NEW_ARRIVALS"
-                  ? "bg-white text-emerald-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "luxury-gold-btn"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
               New Arrivals
@@ -696,38 +954,33 @@ export default function PublicDealershipShowroomPage() {
             <button
               type="button"
               onClick={() => setCatalogTab("FEATURED")}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 catalogTab === "FEATURED"
-                  ? "bg-white text-blue-700 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "luxury-gold-btn"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
-              Featured Vehicles
+              Featured Collection
             </button>
           </div>
         </div>
 
         {filteredVehicles.length === 0 ? (
-          <div className="rb-liquid-glass rounded-2xl p-12 text-center">
-            <SlidersHorizontal className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-slate-900">
-              No vehicles match those exact filters
+          <div className="luxury-glass-card rounded-3xl p-12 text-center">
+            <SlidersHorizontal className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+            <h3 className="text-xl font-bold text-white">
+              No vehicles match those exact filter criteria
             </h3>
-            <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-              Reset your search filters or ask our AI Sales Agent to recommend
-              the closest match in stock.
+            <p className="text-sm text-slate-400 mt-1.5 max-w-md mx-auto">
+              Reset your search filters or ask{" "}
+              <strong className="text-white">{aiSettings.agentName}</strong> to
+              recommend the closest available alternative in our showroom.
             </p>
-            <div className="mt-5 flex justify-center gap-3">
+            <div className="mt-6 flex justify-center gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedMake("ALL");
-                  setSelectedModel("ALL");
-                  setSelectedBudget("ALL");
-                  setSelectedBodyType("ALL");
-                  setCatalogTab("ALL");
-                }}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold"
+                onClick={resetFilters}
+                className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -736,9 +989,9 @@ export default function PublicDealershipShowroomPage() {
                 onClick={() =>
                   openAIWithPrompt("Recommend a vehicle from your current stock")
                 }
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold"
+                className="px-5 py-2.5 rounded-xl luxury-gold-btn text-xs font-extrabold cursor-pointer"
               >
-                Ask AI Sales Agent
+                Ask AI Sales Concierge
               </button>
             </div>
           </div>
@@ -749,97 +1002,116 @@ export default function PublicDealershipShowroomPage() {
               return (
                 <div
                   key={vehicle.id}
-                  className="rb-glass-card rounded-2xl overflow-hidden flex flex-col group"
+                  className="luxury-glass-card rounded-3xl overflow-hidden flex flex-col group"
                 >
                   {/* Large Vehicle Image */}
-                  <div className="relative h-56 bg-slate-100 overflow-hidden">
+                  <div className="relative h-60 bg-slate-950 overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={vehicle.imageUrl}
                       alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#080b13] via-transparent to-black/30" />
+
+                    <div className="absolute top-3.5 left-3.5 flex flex-wrap gap-1.5">
                       {profile.isNewArrival && (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-600 text-white shadow">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/90 text-slate-950 shadow-lg">
                           New Arrival
                         </span>
                       )}
                       {profile.isFeatured && (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-600 text-white shadow">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-lg">
                           Featured
                         </span>
                       )}
                     </div>
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-950/80 text-white backdrop-blur-xs">
+
+                    <div className="absolute top-3.5 right-3.5">
+                      <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-black/75 text-slate-200 border border-white/15 backdrop-blur-md">
                         {vehicle.bodyType}
                       </span>
                     </div>
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                      <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/95 text-slate-800 shadow-xs flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-blue-600" />
+
+                    <div className="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between">
+                      <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-black/75 text-slate-200 border border-white/10 backdrop-blur-md flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3 text-amber-400" />
                         {vehicle.location}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400 bg-black/70 px-2 py-0.5 rounded border border-white/10">
+                        #{vehicle.stockNumber}
                       </span>
                     </div>
                   </div>
 
                   {/* Card Body */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="text-lg font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
-                            {vehicle.make} {vehicle.model} {vehicle.year}
+                          <h3 className="text-xl font-black text-white group-hover:text-amber-300 transition-colors">
+                            {vehicle.year} {vehicle.make} {vehicle.model}
                           </h3>
-                          <p className="text-xs text-slate-500 font-medium">
+                          <p className="text-xs text-slate-400 font-medium mt-0.5">
                             {vehicle.variant} • {profile.engineSize} •{" "}
                             {profile.drivetrain}
                           </p>
                         </div>
                       </div>
 
-                      {/* Price */}
-                      <div className="mt-3 pt-3 border-t border-slate-100 flex items-baseline justify-between">
-                        <span className="text-2xl font-extrabold text-blue-600">
-                          {formatKSh(vehicle.askingPrice)}
-                        </span>
-                        <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
-                          Deposit from {formatKSh(vehicle.askingPrice * 0.2)}
-                        </span>
+                      {/* Price & Deposit */}
+                      <div className="mt-4 pt-4 border-t border-white/10 flex items-baseline justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                            Showroom Price
+                          </span>
+                          <span className="text-2xl font-black luxury-gold-text">
+                            {formatKSh(vehicle.askingPrice)}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 block">
+                            20% Finance Deposit
+                          </span>
+                          <span className="text-xs text-emerald-400 font-extrabold">
+                            {formatKSh(vehicle.askingPrice * 0.2)}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Key Specs Grid: Year, Mileage, Transmission, Fuel */}
-                      <div className="grid grid-cols-2 gap-2.5 mt-4 p-3 rounded-xl bg-slate-50 text-xs text-slate-700">
+                      <div className="grid grid-cols-2 gap-2.5 mt-4 p-3.5 rounded-2xl bg-black/40 border border-white/10 text-xs text-slate-300">
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <Calendar className="w-3.5 h-3.5 text-amber-400" />
                           <span>
-                            Year: <strong>{vehicle.year}</strong>
+                            Year: <strong className="text-white">{vehicle.year}</strong>
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Gauge className="w-3.5 h-3.5 text-slate-400" />
+                          <Gauge className="w-3.5 h-3.5 text-amber-400" />
                           <span>
-                            <strong>{vehicle.mileage.toLocaleString()}</strong>{" "}
+                            <strong className="text-white">
+                              {vehicle.mileage.toLocaleString()}
+                            </strong>{" "}
                             km
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Cog className="w-3.5 h-3.5 text-slate-400" />
+                          <Cog className="w-3.5 h-3.5 text-amber-400" />
                           <span>{vehicle.transmission}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Fuel className="w-3.5 h-3.5 text-slate-400" />
+                          <Fuel className="w-3.5 h-3.5 text-amber-400" />
                           <span>{vehicle.fuelType}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center gap-2.5">
+                    <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2.5">
                       <Link
                         href={`/showroom/vehicles/${vehicle.id}`}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs text-center transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-3 px-4 rounded-xl luxury-gold-btn font-extrabold text-xs text-center flex items-center justify-center gap-1.5"
                       >
                         <span>View Details</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -852,10 +1124,10 @@ export default function PublicDealershipShowroomPage() {
                             vehicle.id
                           )
                         }
-                        className="py-2.5 px-3.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                         title="Ask AI Sales Consultant about this vehicle"
                       >
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                         <span>Ask AI</span>
                       </button>
                     </div>
@@ -867,35 +1139,147 @@ export default function PublicDealershipShowroomPage() {
         )}
       </section>
 
-      {/* 4. AI SALES AGENT CALLOUT BANNER */}
-      <section className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold">
-              <Bot className="w-4 h-4" />
-              <span>Meet {aiSettings.agentName} — Your 24/7 Digital Salesperson</span>
+      {/* 4. INTERACTIVE 24/7 AI DIGITAL SALES CONCIERGE SHOWCASE */}
+      <section id="ai-concierge" className="py-16 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="luxury-glass-card rounded-3xl p-8 sm:p-12 border border-amber-400/25 relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-bold">
+                  <Bot className="w-4 h-4 text-amber-400" />
+                  <span>
+                    Meet {aiSettings.agentName} — Your 24/7 Digital Vehicle Sales
+                    Consultant
+                  </span>
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
+                  More Than a Chatbot.{" "}
+                  <span className="luxury-gold-text">
+                    A Live Digital Salesperson.
+                  </span>
+                </h2>
+
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  {aiSettings.agentName} has direct read/write access to our live
+                  showroom inventory, vehicle specifications, bank financing
+                  structures, and test-drive calendar — capturing qualified CRM
+                  leads and handing off price negotiations to human specialists
+                  automatically.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  {[
+                    {
+                      title: "Live Inventory Search",
+                      desc: "Filters real stock by budget, body type & fuel in milliseconds",
+                    },
+                    {
+                      title: "Automatic CRM Lead Capture",
+                      desc: "Logs buyer contact details directly into our Sales Pipeline",
+                    },
+                    {
+                      title: "Instant Test-Drive Booking",
+                      desc: "Schedules 10:00 AM, 1:00 PM & 3:30 PM showroom viewings",
+                    },
+                    {
+                      title: "Smart Human Handoff",
+                      desc: "Escalates price negotiations to senior sales executives",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.title}
+                      className="p-3.5 rounded-2xl bg-black/40 border border-white/10"
+                    >
+                      <div className="flex items-center gap-2 text-xs font-extrabold text-amber-300">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>{item.title}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 pl-6">
+                        {item.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-2 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openAIWithPrompt(
+                        "I need a family car under 4M. What do you recommend?"
+                      )
+                    }
+                    className="px-6 py-3.5 rounded-xl luxury-gold-btn font-extrabold text-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Launch Interactive AI Recommendation</span>
+                  </button>
+                  <Link
+                    href="/ai-conversations"
+                    className="px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs flex items-center gap-2 transition-all"
+                  >
+                    <span>Inspect AI Logs in Admin CRM</span>
+                    <ChevronRight className="w-4 h-4 text-amber-400" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Live Scenario Triggers */}
+              <div className="lg:col-span-5 space-y-3">
+                <div className="p-5 rounded-2xl bg-black/50 border border-white/10 space-y-3">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400 block">
+                    Click Any Scenario to Test Live AI → CRM Flow
+                  </span>
+
+                  {[
+                    {
+                      badge: "Inventory Match",
+                      prompt: "I'm looking for a Toyota around 3.5 million",
+                      desc: "Searches live Toyota SUVs & Sedans and recommends top matches",
+                    },
+                    {
+                      badge: "Test Drive Booking",
+                      prompt: "Can I come see the Harrier tomorrow?",
+                      desc: "Offers viewing slots (10 AM, 1 PM, 3:30 PM) & books in CRM",
+                    },
+                    {
+                      badge: "Lead Capture",
+                      prompt:
+                        "My name is John Kamau, 0722111222. I'm interested in the Harrier.",
+                      desc: "Automatically creates Customer + Hot Lead in Dealership CRM",
+                    },
+                    {
+                      badge: "Human Handoff",
+                      prompt: "I'd like to negotiate the price on the Prado",
+                      desc: "Triggers AI → Human Salesperson escalation in Negotiation stage",
+                    },
+                  ].map((sc) => (
+                    <button
+                      key={sc.badge}
+                      type="button"
+                      onClick={() => openAIWithPrompt(sc.prompt)}
+                      className="w-full text-left p-3.5 rounded-xl bg-white/[0.03] hover:bg-amber-500/10 border border-white/10 hover:border-amber-400/40 transition-all group cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                          {sc.badge}
+                        </span>
+                        <span className="text-[11px] text-slate-400 group-hover:text-amber-300 font-semibold flex items-center gap-1">
+                          Run Live <ArrowRight className="w-3 h-3" />
+                        </span>
+                      </div>
+                      <p className="text-xs font-bold text-white mt-1.5">
+                        &ldquo;{sc.prompt}&rdquo;
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {sc.desc}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold">
-              Not sure which vehicle fits your budget or lifestyle?
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base max-w-2xl">
-              Our AI Sales Consultant searches our actual dealership inventory in
-              real time, answers vehicle specification questions, books viewing
-              appointments, and connects directly with our sales team on both
-              Website and WhatsApp.
-            </p>
-          </div>
-          <div className="lg:col-span-4 flex flex-wrap lg:justify-end gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                openAIWithPrompt("I need a family car under 4M. What do you recommend?")
-              }
-              className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 flex items-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Start Vehicle Recommendation</span>
-            </button>
           </div>
         </div>
       </section>
@@ -903,41 +1287,49 @@ export default function PublicDealershipShowroomPage() {
       {/* 5. SELL / TRADE-IN YOUR CAR SECTION */}
       <section
         id="sell-trade-in"
-        className="max-w-7xl mx-auto px-4 sm:px-8 py-16 w-full"
+        className="max-w-7xl mx-auto px-4 sm:px-8 py-14 w-full"
       >
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-          <div className="lg:col-span-5 bg-slate-900 text-white p-8 sm:p-10 flex flex-col justify-between">
+        <div className="luxury-glass-card rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+          <div className="lg:col-span-5 bg-gradient-to-br from-[#0b1120] via-[#070a12] to-[#0f172a] p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/10">
             <div className="space-y-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Instant Acquisition & Trade-In Desk</span>
+                <span>Executive Acquisition & Trade-In Desk</span>
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 Want to Sell or Trade In Your Vehicle?
               </h2>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Submit your vehicle details below for a fast valuation. You can
-                trade in your current car to top up for any vehicle in our
-                showroom or sell it directly to us for cash.
+                Upgrade effortlessly. Submit your current vehicle&apos;s details
+                for a same-day physical valuation and apply its full value as
+                your trade-in deposit toward any showroom car.
               </p>
 
               <ul className="space-y-3 pt-3 text-xs sm:text-sm text-slate-200">
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>30-minute physical valuation at Ngong Road or Westlands</span>
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>
+                    30-minute appraisal at Ngong Road HQ or Westlands Annex
+                  </span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Use your car&apos;s value as your deposit for bank finance</span>
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>
+                    Use your current car&apos;s equity as your bank finance
+                    deposit
+                  </span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Automatically logs an Acquisition Lead in our CRM</span>
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>
+                    Instantly dispatches an Acquisition Lead into our Dealership
+                    CRM
+                  </span>
                 </li>
               </ul>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-800">
+            <div className="mt-8 pt-6 border-t border-white/10">
               <button
                 type="button"
                 onClick={() =>
@@ -945,31 +1337,31 @@ export default function PublicDealershipShowroomPage() {
                     "I want to trade in my current car. How does the valuation work?"
                   )
                 }
-                className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-blue-400" />
-                <span>Ask AI About Trade-In Valuation</span>
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>Ask AI Concierge About Trade-In Valuation</span>
               </button>
             </div>
           </div>
 
           <div className="lg:col-span-7 p-8 sm:p-10">
-            <h3 className="text-lg font-extrabold text-slate-900 mb-1">
-              Start Vehicle Evaluation
+            <h3 className="text-xl font-black text-white mb-1">
+              Start Vehicle Valuation
             </h3>
-            <p className="text-xs text-slate-500 mb-6">
-              Fill in your vehicle&apos;s details and expected price in KSh. Our
-              acquisition team will receive your lead immediately.
+            <p className="text-xs text-slate-400 mb-6">
+              Enter your vehicle particulars and expected value in KSh. Our
+              acquisition desk will receive your file immediately.
             </p>
 
             {tiSubmittedBanner && (
-              <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="mb-6 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-xs font-medium flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-bold">{tiSubmittedBanner}</p>
                   <Link
                     href="/leads"
-                    className="inline-block mt-1 text-emerald-700 font-bold underline"
+                    className="inline-block mt-1 text-amber-300 font-bold underline"
                   >
                     View this Trade-In Lead in Dealership CRM →
                   </Link>
@@ -980,7 +1372,7 @@ export default function PublicDealershipShowroomPage() {
             <form onSubmit={handleTradeInSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Make
                   </label>
                   <input
@@ -988,11 +1380,11 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiMake}
                     onChange={(e) => setTiMake(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Model
                   </label>
                   <input
@@ -1000,11 +1392,11 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiModel}
                     onChange={(e) => setTiModel(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Year
                   </label>
                   <input
@@ -1012,14 +1404,14 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiYear}
                     onChange={(e) => setTiYear(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Mileage (km)
                   </label>
                   <input
@@ -1027,11 +1419,11 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiMileage}
                     onChange={(e) => setTiMileage(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Condition
                   </label>
                   <select
@@ -1041,7 +1433,7 @@ export default function PublicDealershipShowroomPage() {
                         e.target.value as "EXCELLENT" | "GOOD" | "FAIR"
                       )
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   >
                     <option value="EXCELLENT">Excellent (Accident-Free)</option>
                     <option value="GOOD">Good (Well Maintained)</option>
@@ -1049,7 +1441,7 @@ export default function PublicDealershipShowroomPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Expected Price (KSh.)
                   </label>
                   <input
@@ -1057,14 +1449,14 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiExpectedPrice}
                     onChange={(e) => setTiExpectedPrice(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Location
                   </label>
                   <input
@@ -1072,17 +1464,17 @@ export default function PublicDealershipShowroomPage() {
                     required
                     value={tiLocation}
                     onChange={(e) => setTiLocation(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Vehicle to Trade Into (Optional)
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                    Vehicle to Upgrade Into (Optional)
                   </label>
                   <select
                     value={tiTargetVehicleId}
                     onChange={(e) => setTiTargetVehicleId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   >
                     <option value="">Direct Cash Sale / Undecided</option>
                     {publicInventory.map((v) => (
@@ -1096,7 +1488,7 @@ export default function PublicDealershipShowroomPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Your Full Name
                   </label>
                   <input
@@ -1105,11 +1497,11 @@ export default function PublicDealershipShowroomPage() {
                     placeholder="e.g. Samuel Kariuki"
                     value={tiName}
                     onChange={(e) => setTiName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
                     Phone Number
                   </label>
                   <input
@@ -1118,78 +1510,75 @@ export default function PublicDealershipShowroomPage() {
                     placeholder="e.g. +254 722 000 111"
                     value={tiPhone}
                     onChange={(e) => setTiPhone(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-sm transition-colors cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
               >
-                Submit Evaluation & Create Acquisition Lead
+                Submit Valuation & Create CRM Acquisition Lead
               </button>
             </form>
           </div>
         </div>
       </section>
 
-      {/* 6. SERVICES & ABOUT US SECTION */}
-      <section
-        id="services"
-        className="bg-white border-y border-slate-200 py-16"
-      >
+      {/* 6. EXECUTIVE DEALERSHIP SERVICES & HERITAGE SECTION */}
+      <section id="services" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              Dealership Services
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-amber-400">
+              White-Glove Ownership Experience
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-              Complete Ownership & Financing Support
+            <h2 className="text-3xl sm:text-4xl font-black text-white mt-1.5">
+              Bespoke Financing & Quality Assurance
             </h2>
-            <p className="text-sm text-slate-600 mt-2">
+            <p className="text-sm text-slate-400 mt-2">
               {aiSettings.businessDescription}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+            <div className="p-7 rounded-3xl luxury-glass-card space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-amber-400 flex items-center justify-center">
                 <BadgeDollarSign className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                Bank & Asset Financing
+              <h3 className="text-lg font-black text-white">
+                Tailored Bank & Asset Finance
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {aiSettings.financingInformation}
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center">
+            <div className="p-7 rounded-3xl luxury-glass-card space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 flex items-center justify-center">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                QISJ Verified & Direct Import
+              <h3 className="text-lg font-black text-white">
+                QISJ Verified & Direct Imports
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Every vehicle is inspected for genuine mileage, structural
-                integrity, and clean auction grade (4.0 / 4.5 / 5.0). We also
-                handle direct imports from Japan and the UK in 35–45 days.
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Every vehicle undergoes a 150-point mechanical and structural
+                inspection with verified auction grade (4.0 / 4.5 / 5.0). Direct
+                bespoke imports from Japan and the UK delivered in 35–45 days.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl rb-glass-card space-y-3">
-              <div className="w-11 h-11 rounded-xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center">
+            <div className="p-7 rounded-3xl luxury-glass-card space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-400/30 text-sky-400 flex items-center justify-center">
                 <Handshake className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-extrabold text-slate-900">
+              <h3 className="text-lg font-black text-white">
                 Same-Day NTSA TIMS & Insurance
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Seamless logbook transfer on the NTSA TIMS portal, comprehensive
-                insurance valuation, and tracker installation arranged before you
-                drive out of our showroom.
+                insurance valuation, and satellite tracker installation completed
+                before showroom handover.
               </p>
             </div>
           </div>
@@ -1197,34 +1586,35 @@ export default function PublicDealershipShowroomPage() {
           {/* About Us Anchor Block */}
           <div
             id="about-us"
-            className="mt-12 p-8 rounded-2xl rb-liquid-glass-dark text-white grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
+            className="mt-12 p-8 sm:p-10 rounded-3xl luxury-glass-card grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
           >
-            <div className="lg:col-span-8 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
-                About Vehisoft Motors Kenya
-              </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold">
-                A Modern Dealership Powered by Live Inventory & 24/7 AI
+            <div className="lg:col-span-8 space-y-2.5">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-400">
+                <Award className="w-4 h-4" />
+                <span>About Vehisoft Executive Motors Kenya</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-white">
+                Where Automotive Prestige Meets 24/7 AI Intelligence
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {aiSettings.dealershipInformation}
               </p>
             </div>
-            <div className="lg:col-span-4 grid grid-cols-2 gap-3 text-center">
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <span className="text-2xl font-extrabold text-blue-400 block">
+            <div className="lg:col-span-4 grid grid-cols-2 gap-4 text-center">
+              <div className="p-5 rounded-2xl bg-black/50 border border-white/10">
+                <span className="text-3xl font-black luxury-gold-text block">
                   100%
                 </span>
-                <span className="text-[11px] text-slate-300">
-                  Verified Mileage
+                <span className="text-xs text-slate-300 mt-1 block">
+                  QISJ Verified Mileage
                 </span>
               </div>
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                <span className="text-2xl font-extrabold text-emerald-400 block">
+              <div className="p-5 rounded-2xl bg-black/50 border border-white/10">
+                <span className="text-3xl font-black text-emerald-400 block">
                   24/7
                 </span>
-                <span className="text-[11px] text-slate-300">
-                  AI Sales Consultant
+                <span className="text-xs text-slate-300 mt-1 block">
+                  AI Digital Concierge
                 </span>
               </div>
             </div>
@@ -1232,72 +1622,81 @@ export default function PublicDealershipShowroomPage() {
         </div>
       </section>
 
-      {/* 7. CONTACT & SHOWROOM VISIT SECTION */}
+      {/* 7. PRIVATE VIEWING & CONTACT SECTION */}
       <section
         id="contact"
         className="max-w-7xl mx-auto px-4 sm:px-8 py-16 w-full"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5 space-y-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              Visit Our Showrooms
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-amber-400">
+              Private Showroom Appointments
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Get in Touch With Our Sales Team
+            <h2 className="text-3xl sm:text-4xl font-black text-white">
+              Speak With Our Executive Sales Desk
             </h2>
-            <p className="text-sm text-slate-600">
-              Send an inquiry directly to our CRM or chat with{" "}
-              <strong>{aiSettings.agentName}</strong> for instant assistance.
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Schedule a private viewing at our Ngong Road or Westlands
+              showroom, or chat with{" "}
+              <strong className="text-amber-300">{aiSettings.agentName}</strong>{" "}
+              for immediate assistance.
             </p>
 
             <div className="space-y-4 pt-2">
-              <div className="flex items-start gap-3">
-                <Building2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                <Building2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">
                     Showroom Locations
                   </h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-slate-300 mt-1">
                     {aiSettings.location}
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                <Clock className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">
-                    Opening Hours
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Showroom Hours
                   </h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-slate-300 mt-1">
                     {aiSettings.openingHours}
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <PhoneCall className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                <PhoneCall className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">
-                    Direct Sales Desk & WhatsApp
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Direct Concierge & WhatsApp
                   </h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    +254 700 123 456 • sales@vehisoft.co.ke
+                  <p className="text-xs text-slate-300 mt-1">
+                    +254 700 123 456 • concierge@vehisoft.co.ke
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-7 rb-liquid-glass rounded-2xl p-6 sm:p-8">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">
+          <div className="lg:col-span-7 luxury-glass-card rounded-3xl p-7 sm:p-9">
+            <h3 className="text-xl font-black text-white mb-1">
               Send a Direct Showroom Inquiry
             </h3>
+            <p className="text-xs text-slate-400 mb-6">
+              Directly creates a prioritized customer lead inside our Dealership
+              CRM.
+            </p>
             {contactSubmitted && (
-              <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-semibold flex items-center justify-between">
+              <div className="mb-5 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-200 font-semibold flex items-center justify-between">
                 <span>
-                  ✓ Inquiry received! A lead has been created in our Dealership
-                  CRM.
+                  ✓ Inquiry logged! Your request has been assigned to our sales
+                  team in the CRM.
                 </span>
-                <Link href="/leads" className="underline font-bold">
+                <Link
+                  href="/leads"
+                  className="underline font-bold text-amber-300"
+                >
                   View in CRM →
                 </Link>
               </div>
@@ -1305,8 +1704,8 @@ export default function PublicDealershipShowroomPage() {
             <form onSubmit={handleContactSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Your Name
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                    Your Full Name
                   </label>
                   <input
                     type="text"
@@ -1314,11 +1713,11 @@ export default function PublicDealershipShowroomPage() {
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     placeholder="e.g. Grace Wambui"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
                     Phone Number
                   </label>
                   <input
@@ -1327,20 +1726,20 @@ export default function PublicDealershipShowroomPage() {
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
                     placeholder="e.g. 0722 987 654"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
                   Vehicle of Interest
                 </label>
                 <select
                   value={contactVehicleId}
                   onChange={(e) => setContactVehicleId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white"
+                  className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                 >
-                  <option value="">General Inquiry</option>
+                  <option value="">General Showroom Inquiry</option>
                   {publicInventory.map((v) => (
                     <option key={v.id} value={v.id}>
                       {v.year} {v.make} {v.model} — {formatKSh(v.askingPrice)}
@@ -1349,44 +1748,69 @@ export default function PublicDealershipShowroomPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Message
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Inquiry Message
                 </label>
                 <textarea
                   rows={3}
                   value={contactMessage}
                   onChange={(e) => setContactMessage(e.target.value)}
-                  placeholder="Ask about availability, bank financing, or viewing times..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                  placeholder="Ask about availability, bank financing, or private viewing times..."
+                  className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm focus:border-amber-400 focus:outline-none"
                 />
               </div>
               <button
                 type="submit"
-                className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-sm transition-colors cursor-pointer"
+                className="px-7 py-3.5 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
               >
-                Send Inquiry to Sales Team
+                Dispatch Inquiry to Executive Sales Desk
               </button>
             </form>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-10 border-t border-slate-800 mt-auto">
+      {/* Luxury Footer */}
+      <footer className="bg-[#030508] text-slate-400 py-12 border-t border-white/10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <div>
-            <span className="font-bold text-white">Vehisoft Motors Kenya</span>{" "}
-            — Powered by Vehisoft Dealership Management System &{" "}
-            {aiSettings.agentName} AI.
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center text-slate-950 font-black">
+              <Car className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-black text-white">
+                VEHISOFT EXECUTIVE MOTORS KENYA
+              </span>{" "}
+              — Powered by Vehisoft Dealership Management System &{" "}
+              <span className="text-amber-300 font-semibold">
+                {aiSettings.agentName} 24/7 AI
+              </span>
+              .
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="hover:text-white">
-              Staff Dashboard
+          <div className="flex items-center gap-5 font-semibold">
+            <Link
+              href="/login"
+              className="text-amber-300 hover:text-amber-200 transition-colors"
+            >
+              Staff Login Portal
             </Link>
-            <Link href="/ai-conversations" className="hover:text-white">
+            <Link
+              href="/dashboard"
+              className="hover:text-white transition-colors"
+            >
+              Executive Dashboard
+            </Link>
+            <Link
+              href="/ai-conversations"
+              className="hover:text-white transition-colors"
+            >
               AI Conversations
             </Link>
-            <Link href="/ai-settings" className="hover:text-white">
+            <Link
+              href="/ai-settings"
+              className="hover:text-white transition-colors"
+            >
               AI Agent Settings
             </Link>
           </div>

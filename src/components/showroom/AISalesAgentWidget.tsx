@@ -405,17 +405,17 @@ export function AISalesAgentWidget({
         <button
           type="button"
           onClick={onOpen}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3.5 rounded-full shadow-2xl shadow-blue-600/40 border border-blue-400/30 transition-all hover:scale-105 group"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3.5 luxury-glass-nav hover:border-amber-400/60 text-white px-5 py-3.5 rounded-2xl shadow-2xl transition-all hover:scale-105 group cursor-pointer"
         >
-          <div className="relative">
-            <Bot className="w-6 h-6" />
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-blue-600 animate-pulse" />
+          <div className="relative w-10 h-10 rounded-xl luxury-gold-btn flex items-center justify-center">
+            <Bot className="w-5 h-5 text-slate-950" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full ring-2 ring-[#070a12] animate-pulse" />
           </div>
           <div className="text-left">
-            <span className="block text-xs font-extrabold tracking-wide uppercase">
-              {aiSettings.agentName} • 24/7 AI Sales Agent
+            <span className="block text-xs font-black tracking-wider uppercase text-amber-300">
+              {aiSettings.agentName} • 24/7 AI Concierge
             </span>
-            <span className="block text-[11px] text-blue-100">
+            <span className="block text-[11px] text-slate-300">
               Ask about stock, prices, financing & test drives
             </span>
           </div>

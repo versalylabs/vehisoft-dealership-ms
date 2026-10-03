@@ -7,16 +7,11 @@ import {
   Car,
   ArrowLeft,
   Sparkles,
-  Calendar,
-  Gauge,
-  Fuel,
-  Cog,
-  MapPin,
+   MapPin,
   CheckCircle2,
   ShieldCheck,
   PhoneCall,
   CalendarCheck,
-  MessageSquare,
   LayoutDashboard,
   X,
 } from "lucide-react";
@@ -189,29 +184,29 @@ export default function PublicVehicleDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
+    <div className="min-h-screen luxury-obsidian-bg text-slate-100 flex flex-col">
       {/* Top Dealership Sync Bar */}
-      <div className="bg-slate-950 text-slate-300 text-xs border-b border-slate-800 px-4 sm:px-8 py-2">
+      <div className="bg-[#04060a]/90 text-slate-300 text-xs border-b border-white/10 px-4 sm:px-8 py-2.5 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white font-semibold"
+            className="inline-flex items-center gap-1.5 text-slate-300 hover:text-amber-300 font-semibold transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to All Showroom Vehicles</span>
+            <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+            <span>Back to Executive Showroom Collection</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link
               href={`/inventory/${vehicle.id}`}
-              className="text-blue-400 hover:text-blue-300 font-semibold"
+              className="text-amber-300 hover:text-amber-200 font-semibold"
             >
               View Internal Admin Record →
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full font-semibold"
+              className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white px-3 py-1 rounded-full font-semibold"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
+              <LayoutDashboard className="w-3.5 h-3.5 text-amber-400" />
               <span>Dealership Admin CRM</span>
             </Link>
           </div>
@@ -219,60 +214,60 @@ export default function PublicVehicleDetailPage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 w-full flex-1 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 w-full flex-1 space-y-8">
         {confirmationMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm font-semibold flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-sm font-semibold flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>{confirmationMsg}</span>
             </div>
-            <Link href="/leads" className="text-xs font-bold underline">
+            <Link href="/leads" className="text-xs font-bold text-amber-300 underline">
               Open CRM Pipeline →
             </Link>
           </div>
         )}
 
         {/* Header Title & Price */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-white/10">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2.5">
               <span
-                className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase ${
+                className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
                   vehicle.status === "AVAILABLE"
-                    ? "bg-emerald-100 text-emerald-800"
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                     : vehicle.status === "RESERVED"
-                    ? "bg-amber-100 text-amber-800"
-                    : "bg-red-100 text-red-800"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                    : "bg-red-500/20 text-red-300 border border-red-500/30"
                 }`}
               >
                 {vehicle.status}
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
                 {profile.conditionBadge}
               </span>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-slate-400 font-mono">
                 Stock #{vehicle.stockNumber}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              {vehicle.make} {vehicle.model} {vehicle.year}
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              {vehicle.year} {vehicle.make} {vehicle.model}
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
-              {vehicle.year} &nbsp;|&nbsp; {profile.engineSize} &nbsp;|&nbsp;{" "}
-              {vehicle.fuelType} &nbsp;|&nbsp; {vehicle.transmission}{" "}
-              &nbsp;|&nbsp; {vehicle.mileage.toLocaleString()} km &nbsp;|&nbsp;{" "}
+            <p className="text-sm text-slate-300 mt-1.5">
+              {vehicle.variant} &nbsp;•&nbsp; {profile.engineSize} &nbsp;•&nbsp;{" "}
+              {vehicle.fuelType} &nbsp;•&nbsp; {vehicle.transmission}{" "}
+              &nbsp;•&nbsp; {vehicle.mileage.toLocaleString()} km &nbsp;•&nbsp;{" "}
               {profile.drivetrain}
             </p>
           </div>
 
           <div className="md:text-right">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-              Showroom Price
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 block">
+              Executive Showroom Price
             </span>
-            <span className="text-3xl sm:text-4xl font-extrabold text-blue-600">
+            <span className="text-3xl sm:text-4xl font-black luxury-gold-text">
               {formatKSh(vehicle.askingPrice)}
             </span>
-            <span className="block text-xs text-emerald-700 font-semibold mt-0.5">
+            <span className="block text-xs text-emerald-400 font-semibold mt-1">
               Bank Finance Available • From 20% Deposit (
               {formatKSh(vehicle.askingPrice * 0.2)})
             </span>
@@ -283,7 +278,7 @@ export default function PublicVehicleDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left: Large Gallery */}
           <div className="lg:col-span-8 space-y-3">
-            <div className="relative h-[360px] sm:h-[460px] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-sm">
+            <div className="relative h-[360px] sm:h-[460px] rounded-3xl overflow-hidden bg-slate-950 border border-white/15 shadow-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -292,8 +287,8 @@ export default function PublicVehicleDetailPage() {
                 alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-xs text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-blue-400" />
+              <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-xl border border-white/15 text-xs font-semibold flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-amber-400" />
                 <span>Located at {vehicle.location}</span>
               </div>
             </div>
@@ -305,10 +300,10 @@ export default function PublicVehicleDetailPage() {
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImageIdx(idx)}
-                  className={`h-20 sm:h-24 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                  className={`h-20 sm:h-24 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
                     selectedImageIdx === idx
-                      ? "border-blue-600 ring-2 ring-blue-500/30"
-                      : "border-slate-200 opacity-75 hover:opacity-100"
+                      ? "border-amber-400 ring-2 ring-amber-400/30"
+                      : "border-white/10 opacity-70 hover:opacity-100"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -324,20 +319,21 @@ export default function PublicVehicleDetailPage() {
 
           {/* Right: Primary Conversion Actions ([Enquire Now], [Book Test Drive], [Chat with AI]) */}
           <div className="lg:col-span-4 space-y-5">
-            <div className="rb-liquid-glass rounded-2xl p-6 space-y-4">
-              <h2 className="text-base font-extrabold text-slate-900">
-                Interested in this {vehicle.make} {vehicle.model}?
+            <div className="luxury-glass-card rounded-3xl p-6 space-y-4">
+              <h2 className="text-lg font-black text-white">
+                Acquire This {vehicle.make} {vehicle.model}
               </h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Reserve a viewing slot, send a direct enquiry to our sales desk,
-                or ask our 24/7 AI Sales Agent any question about this vehicle.
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Reserve a private viewing slot, send a direct enquiry to our
+                executive sales desk, or ask our 24/7 AI Concierge any question
+                about this vehicle.
               </p>
 
               <div className="space-y-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setEnquireOpen(true)}
-                  className="w-full py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl luxury-gold-btn font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>Enquire Now</span>
@@ -346,7 +342,7 @@ export default function PublicVehicleDetailPage() {
                 <button
                   type="button"
                   onClick={() => setTdOpen(true)}
-                  className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <CalendarCheck className="w-4 h-4 text-emerald-400" />
                   <span>Book Test Drive</span>
@@ -361,28 +357,28 @@ export default function PublicVehicleDetailPage() {
                       )}).`
                     )
                   }
-                  className="w-full py-3.5 px-4 rounded-xl rb-liquid-badge hover:bg-blue-50 text-blue-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-amber-300 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Chat with AI ({aiSettings.agentName})</span>
                 </button>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/70 space-y-2 text-xs text-slate-600">
+              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>QISJ / JEVIC Mileage & Chassis Verified</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Trade-ins accepted towards deposit</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Finance Estimate Card */}
-            <div className="rb-liquid-glass-dark text-white rounded-2xl p-6 space-y-3">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
+            <div className="luxury-glass-card text-white rounded-3xl p-6 space-y-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400">
                 Estimated Bank Financing
               </span>
               <div className="flex items-baseline justify-between">
@@ -407,7 +403,7 @@ export default function PublicVehicleDetailPage() {
                     `How does bank financing work for the ${vehicle.year} ${vehicle.make} ${vehicle.model}?`
                   )
                 }
-                className="w-full mt-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-colors cursor-pointer"
+                className="w-full mt-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer"
               >
                 Ask AI for Bank Proforma Details
               </button>
@@ -419,9 +415,9 @@ export default function PublicVehicleDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 space-y-8">
             {/* Specifications Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
-              <h2 className="text-lg font-extrabold text-slate-900 mb-4">
-                Vehicle Specifications
+            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
+              <h2 className="text-xl font-black text-white mb-4">
+                Technical Specifications
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
@@ -443,12 +439,12 @@ export default function PublicVehicleDetailPage() {
                 ].map((spec) => (
                   <div
                     key={spec.label}
-                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-100"
+                    className="p-3.5 rounded-2xl bg-black/40 border border-white/10"
                   >
                     <span className="text-[11px] font-semibold text-slate-400 uppercase block">
                       {spec.label}
                     </span>
-                    <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                    <span className="text-sm font-bold text-white mt-0.5 block">
                       {spec.value}
                     </span>
                   </div>
@@ -457,17 +453,17 @@ export default function PublicVehicleDetailPage() {
             </div>
 
             {/* Features */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
-              <h2 className="text-lg font-extrabold text-slate-900 mb-4">
-                Key Features & Equipment
+            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
+              <h2 className="text-xl font-black text-white mb-4">
+                Key Features & Luxury Equipment
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {profile.features.map((feat) => (
                   <div
                     key={feat}
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 text-xs sm:text-sm font-semibold text-slate-800"
+                    className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm font-semibold text-slate-200"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -475,11 +471,11 @@ export default function PublicVehicleDetailPage() {
             </div>
 
             {/* Description */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
-              <h2 className="text-lg font-extrabold text-slate-900 mb-3">
-                Showroom Description
+            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
+              <h2 className="text-xl font-black text-white mb-3">
+                Showroom Provenance & Notes
               </h2>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 {vehicle.notes} This {vehicle.year} {vehicle.make}{" "}
                 {vehicle.model} ({vehicle.variant}) has covered{" "}
                 {vehicle.mileage.toLocaleString()} km and is finished in{" "}
@@ -488,19 +484,20 @@ export default function PublicVehicleDetailPage() {
               </p>
             </div>
 
-            {/* Bottom AI Contextual Banner: "Interested in this vehicle? Ask our AI assistant about this vehicle." */}
-            <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-blue-300" />
+            {/* Bottom AI Contextual Banner */}
+            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8 space-y-4 border border-amber-400/30">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-extrabold">
-                    Interested in this vehicle?
+                  <h3 className="text-lg font-black text-white">
+                    Interested in this {vehicle.year} {vehicle.make}{" "}
+                    {vehicle.model}?
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-300">
-                    Ask our AI assistant ({aiSettings.agentName}) about this{" "}
-                    {vehicle.year} {vehicle.make} {vehicle.model} anytime.
+                    Ask our AI assistant ({aiSettings.agentName}) about this
+                    vehicle anytime.
                   </p>
                 </div>
               </div>
@@ -518,7 +515,7 @@ export default function PublicVehicleDetailPage() {
                     key={q}
                     type="button"
                     onClick={() => triggerAIQuestion(q)}
-                    className="text-xs font-medium bg-white/10 hover:bg-blue-600 text-white border border-white/15 rounded-full px-3.5 py-2 transition-colors cursor-pointer"
+                    className="text-xs font-semibold bg-white/5 hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 border border-white/10 hover:border-amber-400/40 rounded-full px-3.5 py-2 transition-all cursor-pointer"
                   >
                     &ldquo;{q}&rdquo;
                   </button>
@@ -527,27 +524,27 @@ export default function PublicVehicleDetailPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Enquire Now Modal */}
       {enquireOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="luxury-glass-card rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-extrabold text-slate-900">
+              <h3 className="text-lg font-black text-white">
                 Enquire: {vehicle.year} {vehicle.make} {vehicle.model}
               </h3>
               <button
                 type="button"
                 onClick={() => setEnquireOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600"
+                className="p-1 text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleEnquireSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Your Full Name
                 </label>
                 <input
@@ -556,11 +553,11 @@ export default function PublicVehicleDetailPage() {
                   value={enqName}
                   onChange={(e) => setEnqName(e.target.value)}
                   placeholder="e.g. John Kamau"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -569,11 +566,11 @@ export default function PublicVehicleDetailPage() {
                   value={enqPhone}
                   onChange={(e) => setEnqPhone(e.target.value)}
                   placeholder="e.g. 0722 419 880"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Notes / Questions
                 </label>
                 <textarea
@@ -581,12 +578,12 @@ export default function PublicVehicleDetailPage() {
                   value={enqNotes}
                   onChange={(e) => setEnqNotes(e.target.value)}
                   placeholder="Cash purchase, bank financing, or trade-in question..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm"
+                className="w-full py-3 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
               >
                 Submit Enquiry to Sales Team
               </button>
@@ -597,23 +594,23 @@ export default function PublicVehicleDetailPage() {
 
       {/* Book Test Drive Modal */}
       {tdOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="luxury-glass-card rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-extrabold text-slate-900">
+              <h3 className="text-lg font-black text-white">
                 Book Test Drive: {vehicle.year} {vehicle.make} {vehicle.model}
               </h3>
               <button
                 type="button"
                 onClick={() => setTdOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600"
+                className="p-1 text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleTestDriveSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Your Full Name
                 </label>
                 <input
@@ -622,11 +619,11 @@ export default function PublicVehicleDetailPage() {
                   value={tdName}
                   onChange={(e) => setTdName(e.target.value)}
                   placeholder="e.g. John Kamau"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -635,12 +632,12 @@ export default function PublicVehicleDetailPage() {
                   value={tdPhone}
                   onChange={(e) => setTdPhone(e.target.value)}
                   placeholder="e.g. 0722 419 880"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
                     Preferred Date
                   </label>
                   <input
@@ -648,17 +645,17 @@ export default function PublicVehicleDetailPage() {
                     required
                     value={tdDate}
                     onChange={(e) => setTdDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
                     Time Slot
                   </label>
                   <select
                     value={tdSlot}
                     onChange={(e) => setTdSlot(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+                    className="w-full px-3 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                   >
                     <option value="10:00 AM">10:00 AM</option>
                     <option value="1:00 PM">1:00 PM</option>
@@ -667,7 +664,7 @@ export default function PublicVehicleDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-300 mb-1">
                   Driver&apos;s License No. (Optional)
                 </label>
                 <input
@@ -675,12 +672,12 @@ export default function PublicVehicleDetailPage() {
                   value={tdLicense}
                   onChange={(e) => setTdLicense(e.target.value)}
                   placeholder="e.g. DL-904812"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-sm transition-colors"
+                className="w-full py-3 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
               >
                 Confirm Test Drive Appointment
               </button>
