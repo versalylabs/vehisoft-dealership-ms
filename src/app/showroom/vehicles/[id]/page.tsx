@@ -4,15 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  Car,
   ArrowLeft,
-  Sparkles,
-   MapPin,
-  CheckCircle2,
-  ShieldCheck,
-  PhoneCall,
-  CalendarCheck,
-  LayoutDashboard,
+  ArrowUpRight,
+  ArrowRight,
   X,
 } from "lucide-react";
 import { useDealership } from "@/context/DealershipContext";
@@ -125,7 +119,7 @@ export default function PublicVehicleDetailPage() {
 
     setEnquireOpen(false);
     setConfirmationMsg(
-      `Enquiry logged in Dealership CRM for ${cust.fullName}! Salesperson Peter Mwangi has been assigned.`
+      `Enquiry logged in Dealership CRM for ${cust.fullName}. Assigned to Peter Mwangi.`
     );
     setEnqName("");
     setEnqPhone("");
@@ -176,7 +170,7 @@ export default function PublicVehicleDetailPage() {
 
     setTdOpen(false);
     setConfirmationMsg(
-      `Test Drive booked for ${tdDate} at ${tdSlot}! Added to Dealership Test Drives schedule.`
+      `Test Drive scheduled for ${tdDate} at ${tdSlot}. Added to Dealership Test Drives calendar.`
     );
     setTdName("");
     setTdPhone("");
@@ -184,101 +178,88 @@ export default function PublicVehicleDetailPage() {
   };
 
   return (
-    <div className="min-h-screen luxury-obsidian-bg text-slate-100 flex flex-col">
-      {/* Top Dealership Sync Bar */}
-      <div className="bg-[#04060a]/90 text-slate-300 text-xs border-b border-white/10 px-4 sm:px-8 py-2.5 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-slate-300 hover:text-amber-300 font-semibold transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
-            <span>Back to Executive Showroom Collection</span>
+    <div className="min-h-screen bg-[#ffffff] text-[#000d10] flex flex-col selection:bg-[#000d10] selection:text-[#ffffff]">
+      {/* ====================================================================
+          1. PALE DAWN-SKY HERO HEADER (Hyer Aviation Style)
+          ==================================================================== */}
+      <section className="hyer-sky-hero">
+        <header className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-[23px] pb-[16px] flex items-center justify-between">
+          <Link href="/" className="hyer-nav-link inline-flex items-center gap-[11px]">
+            <ArrowLeft className="w-5 h-5 stroke-[2]" />
+            <span>Back to Showroom</span>
           </Link>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-[13px]">
             <Link
               href={`/inventory/${vehicle.id}`}
-              className="text-amber-300 hover:text-amber-200 font-semibold"
+              className="hyer-pill-ghost-ink hidden sm:inline-flex"
             >
-              View Internal Admin Record →
+              <span>Admin Record</span>
             </Link>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-white/15 text-white px-3 py-1 rounded-full font-semibold"
+            <button
+              type="button"
+              onClick={() =>
+                triggerAIQuestion(
+                  `Hi! Tell me about this ${vehicle.year} ${vehicle.make} ${vehicle.model}.`
+                )
+              }
+              className="hyer-pill-dark"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-amber-400" />
-              <span>Dealership Admin CRM</span>
-            </Link>
+              <span>Ask {aiSettings.agentName}®</span>
+            </button>
+          </div>
+        </header>
+
+        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-[34px] pb-[59px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[34px] items-end">
+            <div className="lg:col-span-7">
+              <span className="text-[17px] font-bold text-[#000d10] block mb-[15px]">
+                Stock #{vehicle.stockNumber} &nbsp;·&nbsp; {vehicle.status}{" "}
+                &nbsp;·&nbsp; {profile.conditionBadge}
+              </span>
+              <h1 className="hyer-display text-[#000d10]">
+                {vehicle.year} {vehicle.make}
+                <br />
+                {vehicle.model}.
+              </h1>
+            </div>
+
+            <div className="lg:col-span-5 lg:text-right">
+              <span className="text-[17px] font-bold text-[#8e8e95] block">
+                Direct Showroom Price
+              </span>
+              <span className="hyer-heading-lg text-[#000d10] block mt-[8px]">
+                {formatKSh(vehicle.askingPrice)}
+              </span>
+              <p className="hyer-body text-[#000d10] mt-[13px]">
+                {profile.engineSize} · {vehicle.fuelType} ·{" "}
+                {vehicle.transmission} · {vehicle.mileage.toLocaleString()} km ·{" "}
+                {profile.drivetrain}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 w-full flex-1 space-y-8">
+      {/* ====================================================================
+          2. WHITE CANVAS — GALLERY & PRIMARY CONVERSION PILLS
+          ==================================================================== */}
+      <section className="max-w-[1200px] mx-auto px-6 sm:px-8 py-[68px] w-full">
         {confirmationMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 text-sm font-semibold flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>{confirmationMsg}</span>
-            </div>
-            <Link href="/leads" className="text-xs font-bold text-amber-300 underline">
-              Open CRM Pipeline →
+          <div className="mb-[38px] p-[22px] border border-[#000d10] bg-[#ffffff] flex items-center justify-between">
+            <span className="hyer-body text-[#000d10] font-bold">
+              {confirmationMsg}
+            </span>
+            <Link href="/leads" className="text-[17px] font-bold underline">
+              Open CRM →
             </Link>
           </div>
         )}
 
-        {/* Header Title & Price */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-white/10">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-2.5">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                  vehicle.status === "AVAILABLE"
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    : vehicle.status === "RESERVED"
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    : "bg-red-500/20 text-red-300 border border-red-500/30"
-                }`}
-              >
-                {vehicle.status}
-              </span>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
-                {profile.conditionBadge}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">
-                Stock #{vehicle.stockNumber}
-              </span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              {vehicle.year} {vehicle.make} {vehicle.model}
-            </h1>
-            <p className="text-sm text-slate-300 mt-1.5">
-              {vehicle.variant} &nbsp;•&nbsp; {profile.engineSize} &nbsp;•&nbsp;{" "}
-              {vehicle.fuelType} &nbsp;•&nbsp; {vehicle.transmission}{" "}
-              &nbsp;•&nbsp; {vehicle.mileage.toLocaleString()} km &nbsp;•&nbsp;{" "}
-              {profile.drivetrain}
-            </p>
-          </div>
-
-          <div className="md:text-right">
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 block">
-              Executive Showroom Price
-            </span>
-            <span className="text-3xl sm:text-4xl font-black luxury-gold-text">
-              {formatKSh(vehicle.askingPrice)}
-            </span>
-            <span className="block text-xs text-emerald-400 font-semibold mt-1">
-              Bank Finance Available • From 20% Deposit (
-              {formatKSh(vehicle.askingPrice * 0.2)})
-            </span>
-          </div>
-        </div>
-
-        {/* LARGE VEHICLE GALLERY + ACTION SIDEBAR */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left: Large Gallery */}
-          <div className="lg:col-span-8 space-y-3">
-            <div className="relative h-[360px] sm:h-[460px] rounded-3xl overflow-hidden bg-slate-950 border border-white/15 shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[52px]">
+          {/* Left: Product-Crop Gallery (0px radius) */}
+          <div className="lg:col-span-8">
+            <div className="relative h-[340px] sm:h-[480px] bg-[#f3eee5] overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -287,29 +268,25 @@ export default function PublicVehicleDetailPage() {
                 alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md text-white px-4 py-2 rounded-xl border border-white/15 text-xs font-semibold flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                <span>Located at {vehicle.location}</span>
-              </div>
             </div>
 
-            {/* Thumbnail Strip */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* Thumbnail Strip (0px radius) */}
+            <div className="grid grid-cols-4 gap-[16px] mt-[16px]">
               {profile.galleryUrls.slice(0, 4).map((url, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImageIdx(idx)}
-                  className={`h-20 sm:h-24 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
+                  className={`h-[88px] overflow-hidden border-t-2 pt-[6px] transition-opacity cursor-pointer ${
                     selectedImageIdx === idx
-                      ? "border-amber-400 ring-2 ring-amber-400/30"
-                      : "border-white/10 opacity-70 hover:opacity-100"
+                      ? "border-[#000d10] opacity-100"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
-                    alt={`Gallery view ${idx + 1}`}
+                    alt={`View ${idx + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -317,34 +294,32 @@ export default function PublicVehicleDetailPage() {
             </div>
           </div>
 
-          {/* Right: Primary Conversion Actions ([Enquire Now], [Book Test Drive], [Chat with AI]) */}
-          <div className="lg:col-span-4 space-y-5">
-            <div className="luxury-glass-card rounded-3xl p-6 space-y-4">
-              <h2 className="text-lg font-black text-white">
-                Acquire This {vehicle.make} {vehicle.model}
+          {/* Right: Editorial Action Column (0px radius, #d5d3d4 hairlines, 1000px pill buttons) */}
+          <div className="lg:col-span-4 flex flex-col justify-between border-t border-[#d5d3d4] pt-[23px]">
+            <div>
+              <h2 className="hyer-heading text-[#000d10]">
+                Acquire This Vehicle.
               </h2>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Reserve a private viewing slot, send a direct enquiry to our
-                executive sales desk, or ask our 24/7 AI Concierge any question
-                about this vehicle.
+              <p className="hyer-body text-[#8e8e95] mt-[16px]">
+                Located at {vehicle.location}. Schedule a viewing appointment,
+                submit a direct enquiry, or consult our 24/7 AI sales agent.
               </p>
 
-              <div className="space-y-3 pt-1">
+              <div className="mt-[31px] flex flex-col gap-[13px]">
                 <button
                   type="button"
                   onClick={() => setEnquireOpen(true)}
-                  className="w-full py-3.5 px-4 rounded-xl luxury-gold-btn font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer"
+                  className="hyer-pill-dark w-full"
                 >
-                  <PhoneCall className="w-4 h-4" />
                   <span>Enquire Now</span>
+                  <ArrowUpRight className="w-4 h-4" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setTdOpen(true)}
-                  className="w-full py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="hyer-pill-ghost-ink w-full"
                 >
-                  <CalendarCheck className="w-4 h-4 text-emerald-400" />
                   <span>Book Test Drive</span>
                 </button>
 
@@ -357,207 +332,197 @@ export default function PublicVehicleDetailPage() {
                       )}).`
                     )
                   }
-                  className="w-full py-3.5 px-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-amber-300 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="hyer-pill-ghost-ink w-full"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>Chat with AI ({aiSettings.agentName})</span>
+                  <span>Chat with AI ({aiSettings.agentName}®)</span>
                 </button>
-              </div>
-
-              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>QISJ / JEVIC Mileage & Chassis Verified</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Trade-ins accepted towards deposit</span>
-                </div>
               </div>
             </div>
 
-            {/* Quick Finance Estimate Card */}
-            <div className="luxury-glass-card text-white rounded-3xl p-6 space-y-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400">
-                Estimated Bank Financing
+            {/* Hairline Finance Summary */}
+            <div className="mt-[38px] border-t border-[#d5d3d4] pt-[22px] space-y-[11px]">
+              <span className="text-[17px] font-bold text-[#000d10] block">
+                Bank Financing Estimate
               </span>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-slate-300">20% Deposit:</span>
-                <span className="text-sm font-bold text-white">
+              <div className="flex justify-between text-[18px]">
+                <span className="text-[#8e8e95]">20% Deposit</span>
+                <span className="font-bold text-[#000d10]">
                   {formatKSh(vehicle.askingPrice * 0.2)}
                 </span>
               </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-slate-300">
-                  Est. Monthly (48 mos):
-                </span>
-                <span className="text-base font-extrabold text-emerald-400">
-                  {formatKSh(Math.round((vehicle.askingPrice * 0.8 * 1.24) / 48))}
+              <div className="flex justify-between text-[18px]">
+                <span className="text-[#8e8e95]">48 Months Est.</span>
+                <span className="font-bold text-[#000d10]">
+                  {formatKSh(
+                    Math.round((vehicle.askingPrice * 0.8 * 1.24) / 48)
+                  )}
                   /mo
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  triggerAIQuestion(
-                    `How does bank financing work for the ${vehicle.year} ${vehicle.make} ${vehicle.model}?`
-                  )
-                }
-                className="w-full mt-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold text-white transition-colors cursor-pointer"
-              >
-                Ask AI for Bank Proforma Details
-              </button>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* VEHICLE DETAILS, SPECIFICATIONS, FEATURES & DESCRIPTION */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 space-y-8">
-            {/* Specifications Table */}
-            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
-              <h2 className="text-xl font-black text-white mb-4">
-                Technical Specifications
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Make", value: vehicle.make },
-                  { label: "Model", value: vehicle.model },
-                  { label: "Variant / Trim", value: vehicle.variant },
-                  { label: "Year of Manufacture", value: String(vehicle.year) },
-                  {
-                    label: "Mileage",
-                    value: `${vehicle.mileage.toLocaleString()} km`,
-                  },
-                  { label: "Engine", value: profile.engineSize },
-                  { label: "Fuel Type", value: vehicle.fuelType },
-                  { label: "Transmission", value: vehicle.transmission },
-                  { label: "Drivetrain", value: profile.drivetrain },
-                  { label: "Body Type", value: vehicle.bodyType },
-                  { label: "Exterior Color", value: vehicle.color },
-                  { label: "Seating Capacity", value: `${profile.seats} Seats` },
-                ].map((spec) => (
-                  <div
-                    key={spec.label}
-                    className="p-3.5 rounded-2xl bg-black/40 border border-white/10"
-                  >
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase block">
-                      {spec.label}
-                    </span>
-                    <span className="text-sm font-bold text-white mt-0.5 block">
-                      {spec.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {/* ====================================================================
+          3. WHITE CANVAS — RIGHT-ALIGNED SPECIFICATIONS & FEATURES
+          ==================================================================== */}
+      <section className="max-w-[1200px] mx-auto px-6 sm:px-8 py-[80px] border-t border-[#d5d3d4] w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[52px]">
+          <div className="lg:col-span-4">
+            <span className="text-[17px] font-bold text-[#8e8e95] block">
+              01 / Technical Specifications
+            </span>
+            <h2 className="hyer-heading text-[#000d10] mt-[16px]">
+              Verified Dossier.
+            </h2>
+            <p className="hyer-body text-[#8e8e95] mt-[16px]">
+              {vehicle.notes}
+            </p>
+          </div>
+
+          <div className="lg:col-span-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-[80px] gap-y-[38px]">
+              {[
+                { label: "Make & Model", value: `${vehicle.make} ${vehicle.model}` },
+                { label: "Variant / Trim", value: vehicle.variant },
+                { label: "Year of Manufacture", value: String(vehicle.year) },
+                { label: "Verified Mileage", value: `${vehicle.mileage.toLocaleString()} km` },
+                { label: "Engine Displacement", value: profile.engineSize },
+                { label: "Powertrain & Fuel", value: `${vehicle.fuelType} · ${vehicle.transmission}` },
+                { label: "Drivetrain", value: profile.drivetrain },
+                { label: "Exterior Finish", value: `${vehicle.color} · ${vehicle.bodyType}` },
+              ].map((spec) => (
+                <div
+                  key={spec.label}
+                  className="border-t border-[#d5d3d4] pt-[21px]"
+                >
+                  <h3 className="hyer-subheading text-[#000d10]">
+                    {spec.value}
+                  </h3>
+                  <p className="hyer-body text-[#8e8e95] mt-[8px]">
+                    {spec.label}
+                  </p>
+                </div>
+              ))}
             </div>
 
-            {/* Features */}
-            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
-              <h2 className="text-xl font-black text-white mb-4">
-                Key Features & Luxury Equipment
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Key Features List */}
+            <div className="mt-[68px] border-t border-[#d5d3d4] pt-[38px]">
+              <h3 className="hyer-heading text-[#000d10] mb-[31px]">
+                Standard Equipment.
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-[80px] gap-y-[23px]">
                 {profile.features.map((feat) => (
                   <div
                     key={feat}
-                    className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm font-semibold text-slate-200"
+                    className="border-t border-[#d5d3d4] pt-[16px] hyer-body text-[#000d10]"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>{feat}</span>
+                    {feat}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8">
-              <h2 className="text-xl font-black text-white mb-3">
-                Showroom Provenance & Notes
-              </h2>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                {vehicle.notes} This {vehicle.year} {vehicle.make}{" "}
-                {vehicle.model} ({vehicle.variant}) has covered{" "}
-                {vehicle.mileage.toLocaleString()} km and is finished in{" "}
-                {vehicle.color}. Available for immediate viewing and test drive
-                at our {vehicle.location}.
-              </p>
-            </div>
-
-            {/* Bottom AI Contextual Banner */}
-            <div className="luxury-glass-card rounded-3xl p-6 sm:p-8 space-y-4 border border-amber-400/30">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white">
-                    Interested in this {vehicle.year} {vehicle.make}{" "}
-                    {vehicle.model}?
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-300">
-                    Ask our AI assistant ({aiSettings.agentName}) about this
-                    vehicle anytime.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                {[
-                  `Does the ${vehicle.model} have a sunroof?`,
-                  `What's the mileage on this ${vehicle.model}?`,
-                  `Is this ${vehicle.model} still available?`,
-                  `Can I come see the ${vehicle.model} tomorrow?`,
-                  `Do you accept trade-ins for this ${vehicle.model}?`,
-                  `I'd like to negotiate the price on the ${vehicle.model}`,
-                ].map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => triggerAIQuestion(q)}
-                    className="text-xs font-semibold bg-white/5 hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 border border-white/10 hover:border-amber-400/40 rounded-full px-3.5 py-2 transition-all cursor-pointer"
-                  >
-                    &ldquo;{q}&rdquo;
-                  </button>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Enquire Now Modal */}
+      {/* ====================================================================
+          4. SINGLE FEATURED CLAY CARD (#bc7155) — VEHICLE AI CONCIERGE
+          ==================================================================== */}
+      <section className="max-w-[1200px] mx-auto px-6 sm:px-8 pb-[80px] w-full">
+        <div className="hyer-clay-card">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[38px] items-center">
+            <div className="lg:col-span-6">
+              <h2 className="hyer-heading text-[#ffffff]">
+                Interested in this {vehicle.model}?
+                <br />
+                Ask {aiSettings.agentName}®.
+              </h2>
+              <p className="hyer-body text-[#ffffff] mt-[17px]">
+                Our 24/7 digital sales consultant has the complete dossier for
+                Stock #{vehicle.stockNumber} and can schedule your viewing or
+                prepare a bank proforma invoice immediately.
+              </p>
+            </div>
+            <div className="lg:col-span-6 flex flex-wrap gap-[11px]">
+              {[
+                `Does the ${vehicle.model} have a sunroof?`,
+                `What's the mileage on this ${vehicle.model}?`,
+                `Is this ${vehicle.model} still available?`,
+                `Can I come see the ${vehicle.model} tomorrow?`,
+                `I'd like to negotiate the price on the ${vehicle.model}`,
+              ].map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => triggerAIQuestion(q)}
+                  className="hyer-pill-ghost-white"
+                >
+                  <span>{q}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================================
+          5. FOOTER TERMINAL (#000d10)
+          ==================================================================== */}
+      <footer className="bg-[#000d10] text-[#ffffff] py-[68px] mt-auto">
+        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 flex flex-col sm:flex-row sm:items-end justify-between gap-[23px]">
+          <div className="hyer-wordmark text-[#ffffff]">
+            Vehisoft
+            <sup className="text-[0.28em] font-bold align-super ml-1">®</sup>
+          </div>
+          <div className="flex flex-wrap gap-[23px] text-[20px] text-[#8e8e95]">
+            <Link href="/" className="hover:text-[#ffffff]">
+              Showroom
+            </Link>
+            <Link href="/dashboard" className="hover:text-[#ffffff]">
+              Executive CRM
+            </Link>
+            <Link href="/ai-conversations" className="hover:text-[#ffffff]">
+              AI Logs
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* Enquire Now Modal (0px radius, #ffffff surface, #000d10 border) */}
       {enquireOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="luxury-glass-card rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-white">
-                Enquire: {vehicle.year} {vehicle.make} {vehicle.model}
+        <div className="fixed inset-0 z-50 bg-[#000d10]/70 flex items-center justify-center p-4">
+          <div className="bg-[#ffffff] text-[#000d10] max-w-lg w-full p-[38px] border border-[#000d10]">
+            <div className="flex items-center justify-between pb-[21px] border-b border-[#d5d3d4]">
+              <h3 className="hyer-subheading text-[#000d10]">
+                Enquire: {vehicle.year} {vehicle.make} {vehicle.model}.
               </h3>
               <button
                 type="button"
                 onClick={() => setEnquireOpen(false)}
-                className="p-1 text-slate-400 hover:text-white"
+                className="hyer-circle-btn !w-9 !h-9"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleEnquireSubmit} className="space-y-3">
+            <form onSubmit={handleEnquireSubmit} className="mt-[23px] space-y-[21px]">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Your Full Name
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
+                  Full Name
                 </label>
                 <input
                   type="text"
                   required
                   value={enqName}
                   onChange={(e) => setEnqName(e.target.value)}
-                  placeholder="e.g. John Kamau"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="John Kamau"
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
                   Phone Number
                 </label>
                 <input
@@ -565,27 +530,24 @@ export default function PublicVehicleDetailPage() {
                   required
                   value={enqPhone}
                   onChange={(e) => setEnqPhone(e.target.value)}
-                  placeholder="e.g. 0722 419 880"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="0722 419 880"
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Notes / Questions
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
+                  Notes
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={enqNotes}
                   onChange={(e) => setEnqNotes(e.target.value)}
-                  placeholder="Cash purchase, bank financing, or trade-in question..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="Financing, cash offer, or trade-in question..."
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
-              >
-                Submit Enquiry to Sales Team
+              <button type="submit" className="hyer-pill-dark w-full">
+                Submit Enquiry to CRM
               </button>
             </form>
           </div>
@@ -594,36 +556,36 @@ export default function PublicVehicleDetailPage() {
 
       {/* Book Test Drive Modal */}
       {tdOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="luxury-glass-card rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-white">
-                Book Test Drive: {vehicle.year} {vehicle.make} {vehicle.model}
+        <div className="fixed inset-0 z-50 bg-[#000d10]/70 flex items-center justify-center p-4">
+          <div className="bg-[#ffffff] text-[#000d10] max-w-lg w-full p-[38px] border border-[#000d10]">
+            <div className="flex items-center justify-between pb-[21px] border-b border-[#d5d3d4]">
+              <h3 className="hyer-subheading text-[#000d10]">
+                Book Test Drive: {vehicle.year} {vehicle.make} {vehicle.model}.
               </h3>
               <button
                 type="button"
                 onClick={() => setTdOpen(false)}
-                className="p-1 text-slate-400 hover:text-white"
+                className="hyer-circle-btn !w-9 !h-9"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleTestDriveSubmit} className="space-y-3">
+            <form onSubmit={handleTestDriveSubmit} className="mt-[23px] space-y-[21px]">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Your Full Name
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
+                  Full Name
                 </label>
                 <input
                   type="text"
                   required
                   value={tdName}
                   onChange={(e) => setTdName(e.target.value)}
-                  placeholder="e.g. John Kamau"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="John Kamau"
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
                   Phone Number
                 </label>
                 <input
@@ -631,31 +593,31 @@ export default function PublicVehicleDetailPage() {
                   required
                   value={tdPhone}
                   onChange={(e) => setTdPhone(e.target.value)}
-                  placeholder="e.g. 0722 419 880"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="0722 419 880"
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-[21px]">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    Preferred Date
+                  <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
+                    Date
                   </label>
                   <input
                     type="date"
                     required
                     value={tdDate}
                     onChange={(e) => setTdDate(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                    className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
                     Time Slot
                   </label>
                   <select
                     value={tdSlot}
                     onChange={(e) => setTdSlot(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                    className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                   >
                     <option value="10:00 AM">10:00 AM</option>
                     <option value="1:00 PM">1:00 PM</option>
@@ -664,22 +626,19 @@ export default function PublicVehicleDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
+                <label className="block text-[17px] font-bold text-[#000d10] mb-[8px]">
                   Driver&apos;s License No. (Optional)
                 </label>
                 <input
                   type="text"
                   value={tdLicense}
                   onChange={(e) => setTdLicense(e.target.value)}
-                  placeholder="e.g. DL-904812"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#0b101b] text-white text-sm"
+                  placeholder="DL-904812"
+                  className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl luxury-gold-btn font-extrabold text-sm cursor-pointer"
-              >
-                Confirm Test Drive Appointment
+              <button type="submit" className="hyer-pill-dark w-full">
+                Confirm Viewing Appointment
               </button>
             </form>
           </div>

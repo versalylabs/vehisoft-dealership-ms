@@ -161,22 +161,19 @@ export function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 h-screen shrink-0 bg-slate-900 text-slate-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 h-screen shrink-0 bg-[#000d10] text-[#ffffff] border-r border-[#d5d3d4]/20 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 shrink-0 px-5 flex items-center justify-between border-b border-slate-800">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/30">
-              <Car className="w-5 h-5" />
-            </div>
+        <div className="h-16 shrink-0 px-5 flex items-center justify-between border-b border-[#d5d3d4]/15">
+          <Link href="/dashboard" className="flex items-center justify-between w-full">
             <div>
-              <span className="font-bold text-white tracking-tight text-base block leading-none">
-                Vehisoft
+              <span className="font-bold text-[#ffffff] tracking-tight text-[23px] block leading-none">
+                Vehisoft<sup className="text-[11px] ml-0.5">®</sup>
               </span>
-              <span className="text-[11px] text-slate-400 font-medium block mt-1">
-                Dealership MS • KSh.
+              <span className="text-[12px] text-[#8e8e95] font-normal block mt-1">
+                Dealership OS · KSh.
               </span>
             </div>
           </Link>

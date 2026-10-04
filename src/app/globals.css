@@ -2,305 +2,347 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Hyer Aviation — Color Tokens */
+  --color-deep-ink: #000d10;
+  --color-pure-white: #ffffff;
+  --color-cool-ash: #8e8e95;
+  --color-pebble: #d5d3d4;
+  --color-midnight-hull: #0f0f1c;
+  --color-charcoal-deck: #151623;
+  --color-clay-ember: #bc7155;
+
+  /* Typography — Font Families */
+  --font-helveticanowdisplay: "HelveticaNowDisplay", "Helvetica Neue", "Neue Haas Grotesk Display Pro", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans-serif: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Typography — Scale */
+  --text-caption: 17px;
+  --leading-caption: 17px;
+  --tracking-caption: 0px;
+  --text-nav: 20px;
+  --leading-nav: 20px;
+  --tracking-nav: 0px;
+  --text-subheading: 23px;
+  --leading-subheading: 23px;
+  --tracking-subheading: -0.23px;
+  --text-heading-sm: 30px;
+  --leading-heading-sm: 30px;
+  --tracking-heading-sm: 0px;
+  --text-heading: 37px;
+  --leading-heading: 37px;
+  --tracking-heading: -0.37px;
+  --text-heading-lg: 52px;
+  --leading-heading-lg: 52px;
+  --tracking-heading-lg: -0.52px;
+  --text-display: 63px;
+  --leading-display: 63px;
+  --tracking-display: -1.26px;
+  --text-display-xl: 131px;
+  --leading-display-xl: 131px;
+  --tracking-display-xl: -2.62px;
+  --text-hero: 187px;
+  --leading-hero: 150px;
+  --tracking-hero: -3.74px;
+
+  /* Typography — Weights */
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+  --spacing-11: 11px;
+  --spacing-13: 13px;
+  --spacing-15: 15px;
+  --spacing-16: 16px;
+  --spacing-17: 17px;
+  --spacing-21: 21px;
+  --spacing-22: 22px;
+  --spacing-23: 23px;
+  --spacing-31: 31px;
+  --spacing-34: 34px;
+  --spacing-38: 38px;
+  --spacing-52: 52px;
+  --spacing-53: 53px;
+  --spacing-59: 59px;
+  --spacing-68: 68px;
+  --spacing-119: 119px;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --section-gap: 80px;
+  --card-padding: 22px;
+  --element-gap: 16px;
+
+  /* Border Radius */
+  --radius-3xl: 45px;
+  --radius-full: 1000px;
+  --radius-full-2: 9999px;
+
+  /* Named Radii */
+  --radius-nav: 1000px;
+  --radius-buttons: 1000px;
+  --radius-decorative: 45px;
+  --radius-heropanels: 0px;
+  --radius-iconbuttons: 100%;
+
+  /* Surfaces */
+  --surface-canvas-white: #ffffff;
+  --surface-card-white: #ffffff;
+  --surface-featured-clay: #bc7155;
+  --surface-dark-slate: #151623;
+  --surface-footer-ink: #000d10;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-helveticanowdisplay);
+    background-color: var(--color-pure-white);
+    color: var(--color-deep-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 /* ==========================================================================
-   React Bits Inspired Liquid-Glass (GlassSurface) Design System
-   Applied to explicit .rb-liquid-glass elements and key card surfaces across all pages
+   Hyer Aviation — Editorial Design System Classes
    ========================================================================== */
 
-.rb-liquid-glass,
-main .bg-white.rounded-2xl,
-main .bg-white.rounded-xl {
-  position: relative;
+/* Pale Dawn-Sky to Warm Parchment Cream Hero Gradient */
+.hyer-sky-hero {
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.82) 0%,
-    rgba(255, 255, 255, 0.64) 55%,
-    rgba(240, 249, 255, 0.76) 100%
-  ) !important;
-  backdrop-filter: blur(20px) saturate(190%);
-  -webkit-backdrop-filter: blur(20px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  box-shadow:
-    0 10px 30px -10px rgba(15, 23, 42, 0.08),
-    0 4px 14px -2px rgba(37, 99, 235, 0.05),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1.5px 0 rgba(59, 130, 246, 0.14) !important;
-  transition:
-    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.25s ease;
-}
-
-.rb-liquid-glass::before,
-main .bg-white.rounded-2xl::before,
-main .bg-white.rounded-xl::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    420px circle at var(--rb-mouse-x, 50%) var(--rb-mouse-y, 0%),
-    rgba(59, 130, 246, 0.13),
-    rgba(16, 185, 129, 0.06) 42%,
-    transparent 75%
+    180deg,
+    #c6d9e8 0%,
+    #dce8f0 42%,
+    #f3eee5 84%,
+    #ffffff 100%
   );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 0;
 }
 
-.rb-liquid-glass:hover::before,
-main .bg-white.rounded-2xl:hover::before,
-main .bg-white.rounded-xl:hover::before {
-  opacity: 1;
+/* Hero Wordmark: 131px weight 700, letter-spacing -2.62px, #000d10 */
+.hyer-wordmark {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(64px, 10.5vw, 131px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--color-deep-ink);
 }
 
-.rb-liquid-glass:hover,
-main a.bg-white.rounded-xl:hover,
-main a.bg-white.rounded-2xl:hover {
-  border-color: rgba(96, 165, 250, 0.65) !important;
-  box-shadow:
-    0 16px 36px -10px rgba(37, 99, 235, 0.14),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 2px 0 rgba(59, 130, 246, 0.22) !important;
+/* Extreme 187px Display Scale for Footer Terminal / Oversized Feature */
+.hyer-hero-scale {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(72px, 13vw, 187px);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
 }
 
-.rb-liquid-glass > *,
-main .bg-white.rounded-2xl > *,
-main .bg-white.rounded-xl > * {
-  position: relative;
-  z-index: 1;
+/* Hero Headline: 60-63px weight 700, letter-spacing -1.26px, line-height 1.0 */
+.hyer-display {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(40px, 5.2vw, 63px);
+  line-height: 1;
+  letter-spacing: -1.26px;
 }
 
-/* Dark Variant for Hero Cards, AI Banners, Sidebar Cards, and Login Surfaces */
-.rb-liquid-glass-dark {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.72) 0%,
-    rgba(30, 41, 59, 0.54) 50%,
-    rgba(15, 23, 42, 0.78) 100%
-  ) !important;
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow:
-    0 20px 45px -15px rgba(2, 6, 23, 0.55),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 2px 0 rgba(56, 189, 248, 0.22) !important;
-  transition:
-    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.25s ease;
+/* Section Headline LG: 52px weight 700, letter-spacing -0.52px, line-height 1.0 */
+.hyer-heading-lg {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(34px, 4.2vw, 52px);
+  line-height: 1;
+  letter-spacing: -0.52px;
 }
 
-.rb-liquid-glass-dark::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    420px circle at var(--rb-mouse-x, 50%) var(--rb-mouse-y, 0%),
-    rgba(56, 189, 248, 0.24),
-    rgba(99, 102, 241, 0.14) 45%,
-    transparent 75%
-  );
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
-  z-index: 0;
+/* Section Headline: 37px weight 700, letter-spacing -0.37px, line-height 1.0 */
+.hyer-heading {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(28px, 3.2vw, 37px);
+  line-height: 1.02;
+  letter-spacing: -0.37px;
 }
 
-.rb-liquid-glass-dark:hover {
-  border-color: rgba(125, 211, 252, 0.42) !important;
-  box-shadow:
-    0 24px 50px -12px rgba(2, 6, 23, 0.65),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.48),
-    inset 0 -1px 3px 0 rgba(56, 189, 248, 0.3) !important;
+/* Heading SM: 30px weight 700, line-height 1.0 */
+.hyer-heading-sm {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: clamp(24px, 2.5vw, 30px);
+  line-height: 1.05;
+  letter-spacing: 0px;
 }
 
-.rb-liquid-glass-dark > * {
-  position: relative;
-  z-index: 1;
+/* Subheading / Feature Block Title: 23px weight 700, letter-spacing -0.23px */
+.hyer-subheading {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 700;
+  font-size: 23px;
+  line-height: 1.1;
+  letter-spacing: -0.23px;
 }
 
-/* Interactive KPI & Content Card Liquid-Glass Variant */
-.rb-glass-card {
-  position: relative;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.84) 0%,
-    rgba(255, 255, 255, 0.66) 100%
-  );
-  backdrop-filter: blur(18px) saturate(185%);
-  -webkit-backdrop-filter: blur(18px) saturate(185%);
-  border: 1px solid rgba(255, 255, 255, 0.86);
-  box-shadow:
-    0 8px 24px -6px rgba(15, 23, 42, 0.06),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1.5px 0 rgba(148, 163, 184, 0.18);
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+/* Body Copy: 18px weight 400, line-height 29px (1.61 ratio) */
+.hyer-body {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 29px;
+  letter-spacing: 0px;
 }
 
-.rb-glass-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(96, 165, 250, 0.55);
-  box-shadow:
-    0 14px 32px -8px rgba(37, 99, 235, 0.12),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
-    inset 0 -1px 2px 0 rgba(59, 130, 246, 0.2);
+/* Nav Links: 20px weight 400, line-height 20px */
+.hyer-nav-link {
+  font-family: var(--font-helveticanowdisplay);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  color: var(--color-deep-ink);
+  transition: color 0.2s ease;
 }
 
-/* Animated Prismatic Shimmer Badge */
-.rb-liquid-badge {
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(56, 189, 248, 0.24) 100%
-  );
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.38);
+.hyer-nav-link:hover {
+  color: var(--color-cool-ash);
 }
 
-/* ==========================================================================
-   Executive Obsidian & Champagne Gold Luxury Showroom Theme
-   ========================================================================== */
-
-.luxury-obsidian-bg {
-  background-color: #06080e;
-  background-image:
-    radial-gradient(at 15% 10%, rgba(245, 158, 11, 0.11) 0px, transparent 45%),
-    radial-gradient(at 85% 15%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 60%, rgba(16, 185, 129, 0.06) 0px, transparent 55%),
-    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 64px 64px, 64px 64px;
+/* Filled Dark Pill Button: #000d10 bg, #ffffff text, 1000px radius, 15px 22px 16px 22px, 17px bold */
+.hyer-pill-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: var(--color-deep-ink);
+  color: var(--color-pure-white);
+  border-radius: 1000px;
+  padding: 15px 22px 16px 22px;
+  font-family: var(--font-helveticanowdisplay);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid var(--color-deep-ink);
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
 }
 
-.luxury-glass-nav {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    rgba(9, 13, 22, 0.82) 0%,
-    rgba(15, 23, 42, 0.72) 50%,
-    rgba(9, 13, 22, 0.86) 100%
-  );
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 24px 48px -12px rgba(0, 0, 0, 0.7),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -1px 1px 0 rgba(245, 158, 11, 0.18);
+.hyer-pill-dark:hover {
+  background-color: var(--color-charcoal-deck);
+  border-color: var(--color-charcoal-deck);
 }
 
-.luxury-glass-card {
-  position: relative;
-  background: linear-gradient(
-    155deg,
-    rgba(17, 24, 39, 0.78) 0%,
-    rgba(9, 13, 22, 0.88) 65%,
-    rgba(15, 23, 42, 0.82) 100%
-  );
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  box-shadow:
-    0 24px 50px -15px rgba(0, 0, 0, 0.75),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 1.5px 0 rgba(245, 158, 11, 0.12);
-  transition:
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+/* Ghost White Pill Button: transparent bg, #ffffff text, 1px white border, 1000px radius */
+.hyer-pill-ghost-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: transparent;
+  color: var(--color-pure-white);
+  border: 1px solid var(--color-pure-white);
+  border-radius: 1000px;
+  padding: 15px 22px 16px 22px;
+  font-family: var(--font-helveticanowdisplay);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
 }
 
-.luxury-glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    480px circle at var(--rb-mouse-x, 50%) var(--rb-mouse-y, 0%),
-    rgba(245, 158, 11, 0.16),
-    rgba(56, 189, 248, 0.08) 45%,
-    transparent 75%
-  );
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  z-index: 0;
+.hyer-pill-ghost-white:hover {
+  background-color: var(--color-pure-white);
+  color: var(--color-deep-ink);
 }
 
-.luxury-glass-card:hover::before {
-  opacity: 1;
+/* Ghost Ink Pill Button for secondary actions on white canvas */
+.hyer-pill-ghost-ink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: transparent;
+  color: var(--color-deep-ink);
+  border: 1px solid var(--color-deep-ink);
+  border-radius: 1000px;
+  padding: 15px 22px 16px 22px;
+  font-family: var(--font-helveticanowdisplay);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
 }
 
-.luxury-glass-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(251, 191, 36, 0.45);
-  box-shadow:
-    0 30px 60px -15px rgba(0, 0, 0, 0.85),
-    0 0 35px -10px rgba(245, 158, 11, 0.22),
-    inset 0 1px 1.5px 0 rgba(253, 230, 138, 0.35),
-    inset 0 -1px 2px 0 rgba(56, 189, 248, 0.2);
+.hyer-pill-ghost-ink:hover {
+  background-color: var(--color-deep-ink);
+  color: var(--color-pure-white);
 }
 
-.luxury-glass-card > * {
-  position: relative;
-  z-index: 1;
+/* Circular Icon Button: 100% radius, #000d10 background, white icon, square hit area */
+.hyer-circle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 100%;
+  background-color: var(--color-deep-ink);
+  color: var(--color-pure-white);
+  border: none;
+  box-shadow: none !important;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
 }
 
-.luxury-gold-btn {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-  color: #05070b;
-  box-shadow:
-    0 10px 25px -5px rgba(245, 158, 11, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.65);
-  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+.hyer-circle-btn:hover {
+  background-color: var(--color-charcoal-deck);
 }
 
-.luxury-gold-btn:hover {
-  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
-  transform: translateY(-1px);
-  box-shadow:
-    0 16px 32px -6px rgba(245, 158, 11, 0.55),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.85);
+/* Featured Clay Card: 0px radius, #bc7155 background, white text, padding 53px 59px */
+.hyer-clay-card {
+  background-color: var(--color-clay-ember);
+  color: var(--color-pure-white);
+  border-radius: 0px !important;
+  padding: 53px 59px;
+  border: none;
+  box-shadow: none !important;
 }
 
-.luxury-gold-text {
-  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 45%, #f59e0b 85%, #fde68a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@media (max-width: 640px) {
+  .hyer-clay-card {
+    padding: 34px 23px;
+  }
 }
 
-/* Custom scrollbar for Kanban pipeline and data tables */
+/* Standard White Card: 0px radius, no shadow, hairline #d5d3d4 divider above title */
+.hyer-white-card {
+  background-color: var(--color-pure-white);
+  color: var(--color-deep-ink);
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  border-top: 1px solid var(--color-pebble);
+  padding-top: 22px;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #ffffff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #d5d3d4;
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #8e8e95;
 }
-
