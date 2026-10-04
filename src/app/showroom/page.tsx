@@ -5,10 +5,9 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   ArrowRight,
+  ArrowLeft,
   Menu,
   X,
-  Plus,
-  Check,
 } from "lucide-react";
 import { useDealership } from "@/context/DealershipContext";
 import { getVehiclePublicProfile } from "@/lib/ai-sales-agent";
@@ -71,6 +70,42 @@ export default function PublicDealershipShowroomPage() {
   const [contactMessage, setContactMessage] = useState("");
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
+  // Smooth scroll helper with cubic-bezier easing for navbar & section anchor links
+  const scrollToSection = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) => {
+    e.preventDefault();
+    setMobileNavOpen(false);
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+
+    const startY = window.scrollY;
+    const rect = target.getBoundingClientRect();
+    const targetY = Math.max(0, startY + rect.top - 16);
+    const distance = targetY - startY;
+    const duration = 800;
+    let startTime: number | null = null;
+
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const step = (currentTime: number) => {
+      if (startTime === null) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutCubic(progress);
+      window.scrollTo(0, startY + distance * eased);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        window.history.pushState(null, "", `#${sectionId}`);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  };
+
   // Live AVAILABLE inventory (SOLD vehicles are automatically removed from public site)
   const publicInventory = useMemo(() => {
     return vehicles.filter((v) => v.status === "AVAILABLE");
@@ -80,12 +115,36 @@ export default function PublicDealershipShowroomPage() {
     return vehicles.filter((v) => v.status === "SOLD").length;
   }, [vehicles]);
 
+  // Admin-managed Spotlight Vehicles (falls back to top 4 available vehicles)
   const spotlightVehicles = useMemo(() => {
-    return publicInventory.slice(0, 4);
-  }, [publicInventory]);
+    const configuredIds = aiSettings.spotlightVehicleIds || [];
+    const fromConfig = configuredIds
+      .map((id) => publicInventory.find((v) => v.id === id))
+      .filter((v): v is NonNullable<typeof v> => Boolean(v));
+    return fromConfig.length > 0 ? fromConfig : publicInventory.slice(0, 4);
+  }, [publicInventory, aiSettings.spotlightVehicleIds]);
+
+  const safeSpotlightIdx =
+    spotlightVehicles.length > 0
+      ? spotlightIdx % spotlightVehicles.length
+      : 0;
 
   const activeSpotlight =
-    spotlightVehicles[spotlightIdx] || spotlightVehicles[0];
+    spotlightVehicles[safeSpotlightIdx] || spotlightVehicles[0];
+
+  const handlePrevSpotlight = () => {
+    if (spotlightVehicles.length === 0) return;
+    setSpotlightIdx((prev) =>
+      prev <= 0 ? spotlightVehicles.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextSpotlight = () => {
+    if (spotlightVehicles.length === 0) return;
+    setSpotlightIdx((prev) =>
+      prev >= spotlightVehicles.length - 1 ? 0 : prev + 1
+    );
+  };
 
   const availableMakes = useMemo(() => {
     return Array.from(new Set(publicInventory.map((v) => v.make))).sort();
@@ -99,11 +158,39 @@ export default function PublicDealershipShowroomPage() {
     return Array.from(new Set(base.map((v) => v.model))).sort();
   }, [publicInventory, selectedMake]);
 
+  const isVehicleFeatured = (vehicleId: string, askingPrice: number) => {
+    if (
+      aiSettings.featuredVehicleIds &&
+      aiSettings.featuredVehicleIds.length > 0
+    ) {
+      return aiSettings.featuredVehicleIds.includes(vehicleId);
+    }
+    return askingPrice >= 3200000;
+  };
+
+  const isVehicleNewArrival = (vehicleId: string) => {
+    if (
+      aiSettings.newArrivalVehicleIds &&
+      aiSettings.newArrivalVehicleIds.length > 0
+    ) {
+      return aiSettings.newArrivalVehicleIds.includes(vehicleId);
+    }
+    return (
+      vehicleId === "veh-1001" ||
+      vehicleId === "veh-1005" ||
+      vehicleId === "veh-1006"
+    );
+  };
+
   const filteredVehicles = useMemo(() => {
     return publicInventory.filter((v) => {
-      const profile = getVehiclePublicProfile(v);
-      if (catalogTab === "NEW_ARRIVALS" && !profile.isNewArrival) return false;
-      if (catalogTab === "FEATURED" && !profile.isFeatured) return false;
+      if (catalogTab === "NEW_ARRIVALS" && !isVehicleNewArrival(v.id))
+        return false;
+      if (
+        catalogTab === "FEATURED" &&
+        !isVehicleFeatured(v.id, v.askingPrice)
+      )
+        return false;
       if (selectedMake !== "ALL" && v.make !== selectedMake) return false;
       if (selectedModel !== "ALL" && v.model !== selectedModel) return false;
       if (selectedBodyType !== "ALL" && v.bodyType !== selectedBodyType)
@@ -133,7 +220,14 @@ export default function PublicDealershipShowroomPage() {
     selectedModel,
     selectedBudget,
     selectedBodyType,
+    aiSettings.featuredVehicleIds,
+    aiSettings.newArrivalVehicleIds,
   ]);
+
+  const homepageVehicles = useMemo(() => {
+    const limit = aiSettings.homepagePreviewLimit || 6;
+    return filteredVehicles.slice(0, limit);
+  }, [filteredVehicles, aiSettings.homepagePreviewLimit]);
 
   const openAIWithPrompt = (prompt?: string, vehicleId?: string) => {
     setAiFocusedVehicleId(vehicleId);
@@ -241,19 +335,45 @@ export default function PublicDealershipShowroomPage() {
         {/* Transparent Top Navigation over Hero */}
         <header className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-[23px] pb-[16px] flex items-center justify-between">
           <div className="flex items-center gap-[31px]">
-            <a href="#vehicles-catalog" className="hyer-nav-link">
+            <a
+              href="#vehicles-catalog"
+              onClick={(e) => scrollToSection(e, "vehicles-catalog")}
+              className="hyer-nav-link"
+            >
               Vehicles
             </a>
-            <a href="#featured-ai" className="hyer-nav-link hidden sm:inline">
+            <Link
+              href="/showroom/vehicles"
+              className="hyer-nav-link hidden sm:inline"
+            >
+              All Cars
+            </Link>
+            <a
+              href="#featured-ai"
+              onClick={(e) => scrollToSection(e, "featured-ai")}
+              className="hyer-nav-link hidden sm:inline"
+            >
               AI Concierge
             </a>
-            <a href="#services" className="hyer-nav-link hidden md:inline">
+            <a
+              href="#services"
+              onClick={(e) => scrollToSection(e, "services")}
+              className="hyer-nav-link hidden md:inline"
+            >
               Services
             </a>
-            <a href="#sell-trade-in" className="hyer-nav-link hidden md:inline">
+            <a
+              href="#sell-trade-in"
+              onClick={(e) => scrollToSection(e, "sell-trade-in")}
+              className="hyer-nav-link hidden md:inline"
+            >
               Trade-In
             </a>
-            <a href="#contact" className="hyer-nav-link hidden lg:inline">
+            <a
+              href="#contact"
+              onClick={(e) => scrollToSection(e, "contact")}
+              className="hyer-nav-link hidden lg:inline"
+            >
               Contact
             </a>
           </div>
@@ -295,27 +415,41 @@ export default function PublicDealershipShowroomPage() {
               <div className="flex flex-col sm:flex-row gap-[13px] sm:gap-[31px]">
                 <a
                   href="#vehicles-catalog"
+                  onClick={(e) => scrollToSection(e, "vehicles-catalog")}
+                  className="hyer-nav-link"
+                >
+                  Live Showroom ({publicInventory.length})
+                </a>
+                <Link
+                  href="/showroom/vehicles"
                   onClick={() => setMobileNavOpen(false)}
                   className="hyer-nav-link"
                 >
-                  All Vehicles ({publicInventory.length})
-                </a>
+                  Full Products Catalog
+                </Link>
                 <a
                   href="#featured-ai"
-                  onClick={() => setMobileNavOpen(false)}
+                  onClick={(e) => scrollToSection(e, "featured-ai")}
                   className="hyer-nav-link"
                 >
                   24/7 AI Sales Agent
                 </a>
                 <a
                   href="#sell-trade-in"
-                  onClick={() => setMobileNavOpen(false)}
+                  onClick={(e) => scrollToSection(e, "sell-trade-in")}
                   className="hyer-nav-link"
                 >
                   Sell / Trade-In Desk
                 </a>
-                <Link href="/ai-conversations" className="hyer-nav-link">
-                  Admin AI Logs
+                <a
+                  href="#contact"
+                  onClick={(e) => scrollToSection(e, "contact")}
+                  className="hyer-nav-link"
+                >
+                  Contact
+                </a>
+                <Link href="/ai-settings" className="hyer-nav-link">
+                  Website & AI Admin
                 </Link>
                 <Link href="/login" className="hyer-nav-link">
                   Staff Login
@@ -335,7 +469,7 @@ export default function PublicDealershipShowroomPage() {
             {/* Flush-Left Monumental Wordmark */}
             <div className="lg:col-span-7">
               <h1 className="hyer-wordmark select-none">
-                Vehisoft
+                {aiSettings.heroWordmark || "Vehisoft"}
                 <sup className="text-[0.28em] font-bold align-super ml-1 tracking-normal">
                   ®
                 </sup>
@@ -349,16 +483,20 @@ export default function PublicDealershipShowroomPage() {
             {/* Right-Side Two-Line Hero Statement Ending with a Period */}
             <div className="lg:col-span-5 lg:text-right flex flex-col lg:items-end justify-end pt-[11px]">
               <h2 className="hyer-display text-[#000d10]">
-                Beyond
+                {aiSettings.heroHeadlineLine1 || "Beyond"}
                 <br />
-                Showroom.
+                {aiSettings.heroHeadlineLine2 || "Showroom."}
               </h2>
               <p className="hyer-body text-[#000d10] mt-[22px] max-w-[420px] lg:text-right">
-                Browse our live QISJ-verified inventory, compare specifications,
-                and consult our 24/7 AI sales specialist anytime.
+                {aiSettings.heroSubtext ||
+                  "Browse our live QISJ-verified inventory, compare specifications, and consult our 24/7 AI sales specialist anytime."}
               </p>
               <div className="mt-[23px] flex flex-wrap lg:justify-end gap-[13px]">
-                <a href="#vehicles-catalog" className="hyer-pill-dark">
+                <a
+                  href="#vehicles-catalog"
+                  onClick={(e) => scrollToSection(e, "vehicles-catalog")}
+                  className="hyer-pill-dark"
+                >
                   <span>Vehisoft® Inventory</span>
                   <ArrowUpRight className="w-4 h-4 stroke-[2.2]" />
                 </a>
@@ -373,18 +511,69 @@ export default function PublicDealershipShowroomPage() {
             </div>
           </div>
 
-          {/* Sculptural Product Showcase in the Lower-Center Negative Space */}
+          {/* Sculptural Product Showcase (Spotlight Carousel) in the Lower-Center Negative Space */}
           {activeSpotlight && (
-            <div className="mt-[52px]">
+            <div id="spotlight" className="mt-[52px]">
+              {/* Spotlight Top Header Bar with Carousel Arrow Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-[16px] pb-[16px]">
+                <div className="flex items-center gap-[13px]">
+                  <span className="text-[17px] font-bold text-[#000d10]">
+                    Showroom Spotlight
+                  </span>
+                  <span className="text-[17px] font-bold text-[#8e8e95]">
+                    · &nbsp;0{safeSpotlightIdx + 1} / 0{spotlightVehicles.length}
+                  </span>
+                </div>
+
+                {/* Carousel Arrow Buttons & Pill Indicators */}
+                <div className="flex items-center gap-[11px]">
+                  <div className="hidden sm:flex items-center gap-[8px] mr-[8px]">
+                    {spotlightVehicles.map((v, idx) => (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSpotlightIdx(idx)}
+                        className={`rounded-full px-[15px] py-[9px] text-[15px] font-bold leading-none transition-colors cursor-pointer ${
+                          safeSpotlightIdx === idx
+                            ? "bg-[#000d10] text-[#ffffff]"
+                            : "bg-[#ffffff] text-[#000d10] border border-[#d5d3d4]"
+                        }`}
+                      >
+                        0{idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePrevSpotlight}
+                    className="hyer-circle-btn"
+                    aria-label="Previous Spotlight Vehicle"
+                    title="Previous Spotlight Vehicle"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextSpotlight}
+                    className="hyer-circle-btn"
+                    aria-label="Next Spotlight Vehicle"
+                    title="Next Spotlight Vehicle"
+                  >
+                    <ArrowRight className="w-5 h-5 stroke-[2.2]" />
+                  </button>
+                </div>
+              </div>
+
               <div className="relative bg-[#ffffff] border-t border-[#d5d3d4]">
                 <div className="grid grid-cols-1 lg:grid-cols-12">
                   {/* Product Crop Vehicle Photography (0px radius) */}
-                  <div className="lg:col-span-8 relative h-[320px] sm:h-[460px] bg-[#f4efe6] overflow-hidden">
+                  <div className="lg:col-span-8 relative h-[320px] sm:h-[460px] bg-[#f4efe6] overflow-hidden group">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
+                      key={activeSpotlight.id}
                       src={activeSpotlight.imageUrl}
                       alt={`${activeSpotlight.year} ${activeSpotlight.make} ${activeSpotlight.model}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-all duration-500"
                     />
                     {/* Minimal Pill Switcher on Image */}
                     <div className="absolute top-[22px] left-[22px] flex items-center gap-[11px]">
@@ -394,7 +583,7 @@ export default function PublicDealershipShowroomPage() {
                           type="button"
                           onClick={() => setSpotlightIdx(idx)}
                           className={`rounded-full px-[16px] py-[11px] text-[17px] font-bold leading-none transition-colors cursor-pointer ${
-                            spotlightIdx === idx
+                            safeSpotlightIdx === idx
                               ? "bg-[#000d10] text-[#ffffff]"
                               : "bg-[#ffffff] text-[#000d10]"
                           }`}
@@ -402,6 +591,26 @@ export default function PublicDealershipShowroomPage() {
                           0{idx + 1}
                         </button>
                       ))}
+                    </div>
+
+                    {/* Carousel Left / Right Arrow Buttons overlaid on Spotlight Image */}
+                    <div className="absolute bottom-[22px] right-[22px] flex items-center gap-[11px]">
+                      <button
+                        type="button"
+                        onClick={handlePrevSpotlight}
+                        className="hyer-circle-btn"
+                        aria-label="Previous Spotlight Vehicle"
+                      >
+                        <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextSpotlight}
+                        className="hyer-circle-btn"
+                        aria-label="Next Spotlight Vehicle"
+                      >
+                        <ArrowRight className="w-5 h-5 stroke-[2.2]" />
+                      </button>
                     </div>
                   </div>
 
@@ -604,7 +813,7 @@ export default function PublicDealershipShowroomPage() {
                 className="hyer-pill-dark w-full"
               >
                 <span>
-                  Showing {filteredVehicles.length} of {publicInventory.length}
+                  Showing {homepageVehicles.length} of {filteredVehicles.length}
                 </span>
               </button>
             </div>
@@ -665,7 +874,7 @@ export default function PublicDealershipShowroomPage() {
         </div>
 
         {/* Standard White Card Vehicle Grid (0px radius, no shadow, #d5d3d4 hairline above titles) */}
-        {filteredVehicles.length === 0 ? (
+        {homepageVehicles.length === 0 ? (
           <div className="hyer-white-card py-[59px]">
             <h3 className="hyer-heading text-[#000d10]">
               No matching vehicles in current stock.
@@ -695,8 +904,13 @@ export default function PublicDealershipShowroomPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-[38px] gap-y-[68px]">
-            {filteredVehicles.map((vehicle) => {
+            {homepageVehicles.map((vehicle) => {
               const profile = getVehiclePublicProfile(vehicle);
+              const newArrival = isVehicleNewArrival(vehicle.id);
+              const featured = isVehicleFeatured(
+                vehicle.id,
+                vehicle.askingPrice
+              );
               return (
                 <article
                   key={vehicle.id}
@@ -714,13 +928,18 @@ export default function PublicDealershipShowroomPage() {
                         alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute top-[16px] left-[16px] flex gap-[8px]">
+                      <div className="absolute top-[16px] left-[16px] flex flex-wrap gap-[8px]">
                         <span className="rounded-full bg-[#000d10] text-[#ffffff] px-[15px] py-[8px] text-[14px] font-bold leading-none">
                           {vehicle.year}
                         </span>
-                        {profile.isNewArrival && (
+                        {newArrival && (
                           <span className="rounded-full bg-[#ffffff] text-[#000d10] px-[15px] py-[8px] text-[14px] font-bold leading-none">
                             New Arrival
+                          </span>
+                        )}
+                        {featured && !newArrival && (
+                          <span className="rounded-full bg-[#ffffff] text-[#000d10] px-[15px] py-[8px] text-[14px] font-bold leading-none">
+                            Featured
                           </span>
                         )}
                       </div>
@@ -777,6 +996,26 @@ export default function PublicDealershipShowroomPage() {
             })}
           </div>
         )}
+
+        {/* Explore More Button Below Live Showroom Inventory -> Redirects to /showroom/vehicles */}
+        <div className="mt-[68px] pt-[38px] border-t border-[#d5d3d4] flex flex-col sm:flex-row sm:items-center justify-between gap-[23px]">
+          <div>
+            <p className="hyer-heading-sm text-[#000d10]">
+              Explore Full Showroom Inventory ({publicInventory.length} Vehicles
+              Available)
+            </p>
+            <p className="hyer-body text-[#8e8e95] mt-[6px]">
+              Browse all makes, filter by transmission or fuel type, and compare
+              vehicles side-by-side on our dedicated products catalog page.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-[13px] shrink-0">
+            <Link href="/showroom/vehicles" className="hyer-pill-dark">
+              <span>Explore More</span>
+              <ArrowUpRight className="w-4 h-4 stroke-[2.2]" />
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* ====================================================================
@@ -1289,22 +1528,28 @@ export default function PublicDealershipShowroomPage() {
               <span className="text-[17px] font-bold text-[#ffffff] block mb-[17px]">
                 Showroom
               </span>
-              <a
-                href="#vehicles-catalog"
+              <Link
+                href="/showroom/vehicles"
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
-                All Vehicles
-              </a>
+                All Cars Catalog
+              </Link>
               <a
                 href="#vehicles-catalog"
-                onClick={() => setCatalogTab("NEW_ARRIVALS")}
+                onClick={(e) => {
+                  setCatalogTab("NEW_ARRIVALS");
+                  scrollToSection(e, "vehicles-catalog");
+                }}
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
                 New Arrivals
               </a>
               <a
                 href="#vehicles-catalog"
-                onClick={() => setCatalogTab("FEATURED")}
+                onClick={(e) => {
+                  setCatalogTab("FEATURED");
+                  scrollToSection(e, "vehicles-catalog");
+                }}
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
                 Featured Stock
@@ -1317,18 +1562,21 @@ export default function PublicDealershipShowroomPage() {
               </span>
               <a
                 href="#featured-ai"
+                onClick={(e) => scrollToSection(e, "featured-ai")}
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
                 {aiSettings.agentName}® AI
               </a>
               <a
                 href="#sell-trade-in"
+                onClick={(e) => scrollToSection(e, "sell-trade-in")}
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
                 Trade-In Desk
               </a>
               <a
                 href="#services"
+                onClick={(e) => scrollToSection(e, "services")}
                 className="block text-[20px] text-[#8e8e95] hover:text-[#ffffff] transition-colors"
               >
                 Bank Financing

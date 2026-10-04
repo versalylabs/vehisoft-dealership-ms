@@ -31,6 +31,17 @@ export interface AIAgentSettings {
   escalationRules: string;
   faqs: AIAgentFAQ[];
   knowledgeSources: AIAgentKnowledgeSources;
+  // Website & Spotlight Admin Management
+  spotlightVehicleIds?: string[];
+  featuredVehicleIds?: string[];
+  newArrivalVehicleIds?: string[];
+  heroWordmark?: string;
+  heroHeadlineLine1?: string;
+  heroHeadlineLine2?: string;
+  heroSubtext?: string;
+  homepagePreviewLimit?: number;
+  showFeaturedAICard?: boolean;
+  showTradeInSection?: boolean;
 }
 
 export interface AIMessage {
@@ -292,6 +303,17 @@ export const INITIAL_AI_SETTINGS: AIAgentSettings = {
     operatingHours: true,
     salesTeam: true,
   },
+  spotlightVehicleIds: ["veh-1001", "veh-1003", "veh-1002", "veh-1006"],
+  featuredVehicleIds: ["veh-1001", "veh-1002", "veh-1003", "veh-1005"],
+  newArrivalVehicleIds: ["veh-1001", "veh-1005", "veh-1006"],
+  heroWordmark: "Vehisoft",
+  heroHeadlineLine1: "Beyond",
+  heroHeadlineLine2: "Showroom.",
+  heroSubtext:
+    "Browse our live QISJ-verified inventory, compare specifications, and consult our 24/7 AI sales specialist anytime.",
+  homepagePreviewLimit: 6,
+  showFeaturedAICard: true,
+  showTradeInSection: true,
 };
 
 export const INITIAL_AI_CONVERSATIONS: AIConversation[] = [

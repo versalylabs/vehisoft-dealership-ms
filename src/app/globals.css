@@ -95,6 +95,14 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  section[id] {
+    scroll-margin-top: 24px;
+  }
+
   body {
     font-family: var(--font-helveticanowdisplay);
     background-color: var(--color-pure-white);

@@ -217,7 +217,7 @@ export function DealershipProvider({
       const savedSales = localStorage.getItem(STORAGE_SALES_KEY);
       if (savedSales) setSales(JSON.parse(savedSales));
       const savedAI = localStorage.getItem(STORAGE_AI_SETTINGS_KEY);
-      if (savedAI) setAISettings(JSON.parse(savedAI));
+      if (savedAI) setAISettings({ ...INITIAL_AI_SETTINGS, ...JSON.parse(savedAI) });
       const savedConvs = localStorage.getItem(STORAGE_AI_CONVERSATIONS_KEY);
       if (savedConvs) setAIConversations(JSON.parse(savedConvs));
       const savedTI = localStorage.getItem(STORAGE_TRADE_INS_KEY);

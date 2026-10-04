@@ -26,8 +26,23 @@ import {
 import { STATUS_BADGE_STYLES, STATUS_LABELS } from "@/lib/badges";
 
 export default function InventoryListPage() {
-  const { vehicles } = useDealership();
+  const { vehicles, aiSettings, updateAISettings } = useDealership();
   const { permissions } = useAuth();
+
+  const spotlightIds = aiSettings.spotlightVehicleIds || [
+    "veh-1001",
+    "veh-1003",
+    "veh-1002",
+    "veh-1006",
+  ];
+
+  const toggleVehicleSpotlight = (vehicleId: string) => {
+    const exists = spotlightIds.includes(vehicleId);
+    const updated = exists
+      ? spotlightIds.filter((id) => id !== vehicleId)
+      : [...spotlightIds, vehicleId];
+    updateAISettings({ spotlightVehicleIds: updated });
+  };
 
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [search, setSearch] = useState("");
@@ -348,6 +363,7 @@ export default function InventoryListPage() {
                     <th className="py-3.5 px-4">Total Cost &amp; Profit</th>
                   )}
                   <th className="py-3.5 px-4">Stock Age</th>
+                  <th className="py-3.5 px-4">Website Spotlight</th>
                   <th className="py-3.5 px-4">Status</th>
                   <th className="py-3.5 px-4 text-right">Action</th>
                 </tr>
@@ -447,6 +463,26 @@ export default function InventoryListPage() {
                           <Clock className="w-3 h-3" />
                           {ageDays}d
                         </span>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        {v.status === "AVAILABLE" ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleVehicleSpotlight(v.id)}
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors cursor-pointer ${
+                              spotlightIds.includes(v.id)
+                                ? "bg-[#000d10] text-white"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {spotlightIds.includes(v.id)
+                              ? "★ In Spotlight"
+                              : "+ Spotlight"}
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-slate-400">—</span>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-4">
