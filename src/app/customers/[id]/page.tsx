@@ -38,8 +38,7 @@ export default function CustomerProfilePage() {
     useDealership();
   const { user } = useAuth();
 
-  const customer =
-    customers.find((c) => c.id === customerId) || customers[0];
+  const customer = customers.find((c) => c.id === customerId);
 
   const [actType, setActType] = useState<ActivityTypeEnum>("CALL");
   const [actNotes, setActNotes] = useState("");
@@ -48,8 +47,20 @@ export default function CustomerProfilePage() {
 
   if (!customer) {
     return (
-      <div className="p-8 bg-white rounded-xl border border-slate-200">
-        <p className="text-sm text-slate-600">Customer not found.</p>
+      <div className="p-10 bg-white rounded-xl border border-slate-200 text-center max-w-xl mx-auto mt-8 shadow-sm">
+        <h2 className="text-lg font-bold text-slate-900">
+          Customer Profile Not Found
+        </h2>
+        <p className="text-xs text-slate-500 mt-1">
+          Could not locate customer record <span className="font-mono font-bold text-slate-700">{customerId}</span> in the CRM directory.
+        </p>
+        <Link
+          href="/customers"
+          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Customers Directory</span>
+        </Link>
       </div>
     );
   }

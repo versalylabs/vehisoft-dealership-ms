@@ -44,8 +44,7 @@ export default function VehicleDetailPage() {
 
   const vehicle =
     vehicles.find((v) => v.id === vehicleId) ||
-    vehicles.find((v) => v.stockNumber === vehicleId) ||
-    vehicles[0];
+    vehicles.find((v) => v.stockNumber === vehicleId);
 
   const [activeTab, setActiveTab] = useState<
     "overview" | "financials" | "images" | "history"
@@ -56,6 +55,7 @@ export default function VehicleDetailPage() {
   );
   const [newMinPrice, setNewMinPrice] = useState(vehicle?.minimumPrice || 0);
   const [toast, setToast] = useState("");
+  const [errorBanner, setErrorBanner] = useState("");
 
   // New Expense State
   const [expCategory, setExpCategory] =
@@ -72,19 +72,29 @@ export default function VehicleDetailPage() {
 
   if (!vehicle) {
     return (
-      <div className="p-8 bg-white rounded-xl border border-slate-200">
-        <p className="text-sm text-slate-600">Vehicle not found.</p>
+      <div className="p-10 bg-white rounded-xl border border-slate-200 text-center max-w-xl mx-auto mt-8 shadow-sm">
+        <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3">
+          <Car className="w-6 h-6" />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900">
+          Vehicle Record Not Found
+        </h2>
+        <p className="text-xs text-slate-500 mt-1">
+          No vehicle with ID or Stock Number <span className="font-mono font-bold text-slate-700">{vehicleId}</span> exists in the dealership inventory.
+        </p>
         <Link
           href="/inventory"
-          className="text-xs font-semibold text-blue-600 mt-2 inline-block"
+          className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm"
         >
-          ← Back to Inventory
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Vehicle Inventory</span>
         </Link>
       </div>
     );
   }
 
   const notify = (msg: string) => {
+    setErrorBanner("");
     setToast(msg);
     setTimeout(() => setToast(""), 3500);
   };
@@ -102,6 +112,14 @@ export default function VehicleDetailPage() {
 
   const handlePriceUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    if (Number(newAskingPrice) <= 0 || Number(newMinPrice) <= 0) {
+      setErrorBanner("Asking price and minimum price must be greater than KSh. 0.");
+      return;
+    }
+    if (Number(newAskingPrice) < Number(newMinPrice)) {
+      setErrorBanner("Asking price cannot be lower than the minimum acceptable price.");
+      return;
+    }
     updateVehiclePrice(
       vehicle.id,
       Number(newAskingPrice),
@@ -182,7 +200,12 @@ export default function VehicleDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {errorBanner && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs font-semibold">
+              <span>{errorBanner}</span>
+            </div>
+          )}
           {toast && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />

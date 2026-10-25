@@ -51,6 +51,8 @@ export default function AddVehiclePage() {
     initialExpenseAmount: 45000,
   });
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const financials = calculateVehicleFinancials({
     purchasePrice: Number(form.purchasePrice) || 0,
     expensesTotal: Number(form.initialExpenseAmount) || 0,
@@ -59,6 +61,21 @@ export default function AddVehiclePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+
+    if (Number(form.askingPrice) < Number(form.minimumPrice)) {
+      setErrorMsg(
+        "Validation Error: Asking Price cannot be lower than the Minimum Acceptable Price."
+      );
+      return;
+    }
+    if (Number(form.purchasePrice) <= 0 || Number(form.askingPrice) <= 0) {
+      setErrorMsg(
+        "Validation Error: Purchase Price and Asking Price must be greater than KSh. 0."
+      );
+      return;
+    }
+
     const selectedSupplier = suppliers.find((s) => s.id === form.supplierId);
 
     const created = addVehicle(
@@ -121,6 +138,19 @@ export default function AddVehiclePage() {
           </div>
         </div>
       </div>
+
+      {errorMsg && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-center justify-between">
+          <span>{errorMsg}</span>
+          <button
+            type="button"
+            onClick={() => setErrorMsg(null)}
+            className="text-red-600 hover:underline ml-4"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 1. Basic Information */}

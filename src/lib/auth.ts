@@ -84,3 +84,81 @@ export function getRolePermissions(role: UserRole): RolePermissions {
 export function getDefaultUser(): DemoUser {
   return INITIAL_USERS[0]; // David Mwangi (Owner / Admin)
 }
+
+export function canAccessRoute(
+  pathname: string,
+  permissions: RolePermissions
+): { allowed: boolean; requiredPermissionLabel?: string } {
+  if (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/showroom") ||
+    pathname === "/dashboard" ||
+    pathname === "/inventory" ||
+    (pathname.startsWith("/inventory/") &&
+      pathname !== "/inventory/add" &&
+      pathname !== "/inventory/costs")
+  ) {
+    return { allowed: true };
+  }
+
+  if (pathname === "/inventory/add") {
+    return {
+      allowed: permissions.canManageInventory,
+      requiredPermissionLabel: "Inventory Management (Admin, Manager, or Inventory Staff)",
+    };
+  }
+
+  if (pathname === "/inventory/costs") {
+    return {
+      allowed: permissions.canManageCosts,
+      requiredPermissionLabel: "Vehicle Costs & Financials (Admin, Manager, or Inventory Staff)",
+    };
+  }
+
+  if (pathname.startsWith("/suppliers")) {
+    return {
+      allowed: permissions.canManageSuppliers,
+      requiredPermissionLabel: "Supplier Management (Admin, Manager, or Inventory Staff)",
+    };
+  }
+
+  if (
+    pathname.startsWith("/customers") ||
+    pathname.startsWith("/leads") ||
+    pathname.startsWith("/pipeline") ||
+    pathname.startsWith("/follow-ups") ||
+    pathname.startsWith("/test-drives") ||
+    pathname.startsWith("/reservations") ||
+    pathname.startsWith("/ai-conversations")
+  ) {
+    return {
+      allowed: permissions.canManageCRM || permissions.canManageSales,
+      requiredPermissionLabel: "CRM & Sales Pipeline Access (Admin, Manager, or Salesperson)",
+    };
+  }
+
+  if (pathname.startsWith("/sales")) {
+    return {
+      allowed: permissions.canManageSales,
+      requiredPermissionLabel: "Sales Management (Admin, Manager, or Salesperson)",
+    };
+  }
+
+  if (pathname.startsWith("/reports")) {
+    return {
+      allowed: permissions.canViewReports,
+      requiredPermissionLabel: "Reports Access",
+    };
+  }
+
+  if (pathname.startsWith("/settings") || pathname.startsWith("/ai-settings")) {
+    return {
+      allowed: permissions.canManageSettings,
+      requiredPermissionLabel: "System & Website Settings (Owner / Admin or Manager)",
+    };
+  }
+
+  return { allowed: true };
+}
+

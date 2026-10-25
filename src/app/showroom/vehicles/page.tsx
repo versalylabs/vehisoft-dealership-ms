@@ -10,11 +10,15 @@ import {
   X,
   Check,
   Plus,
+  Sparkles,
+  Compass,
 } from "lucide-react";
 import { useDealership } from "@/context/DealershipContext";
+import { useAuth } from "@/context/AuthContext";
 import { getVehiclePublicProfile } from "@/lib/ai-sales-agent";
 import { AISalesAgentWidget } from "@/components/showroom/AISalesAgentWidget";
 import { formatKSh } from "@/lib/format";
+import { VehisoftIcon } from "@/components/brand/VehisoftLogo";
 
 type CatalogCategory = "ALL" | "SPOTLIGHT" | "NEW_ARRIVALS" | "FEATURED";
 type SortOption =
@@ -26,6 +30,7 @@ type SortOption =
 
 export default function ShowroomAllVehiclesPage() {
   const { vehicles, aiSettings } = useDealership();
+  const { isAuthenticated } = useAuth();
 
   // Filter & Search States
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -56,30 +61,47 @@ export default function ShowroomAllVehiclesPage() {
     setAiOpen(true);
   };
 
-  // Live AVAILABLE inventory (automatically synced with Admin Inventory)
+  // Live AVAILABLE inventory
   const publicInventory = useMemo(() => {
-    return vehicles.filter((v) => v.status === "AVAILABLE");
+    return vehicles.filter(
+      (v) => v.status === "AVAILABLE" || v.status === "IN_TRANSIT"
+    );
   }, [vehicles]);
 
   const isSpotlight = (id: string) =>
-    (aiSettings.spotlightVehicleIds || ["veh-1001", "veh-1003", "veh-1002", "veh-1006"]).includes(id);
+    (
+      aiSettings?.spotlightVehicleIds || [
+        "veh-1001",
+        "veh-1003",
+        "veh-1002",
+        "veh-1006",
+        "veh-1009",
+        "veh-1010",
+      ]
+    ).includes(id);
 
   const isFeatured = (id: string, askingPrice: number) => {
-    if (aiSettings.featuredVehicleIds && aiSettings.featuredVehicleIds.length > 0) {
+    if (aiSettings?.featuredVehicleIds && aiSettings.featuredVehicleIds.length > 0) {
       return aiSettings.featuredVehicleIds.includes(id);
     }
-    return askingPrice >= 3200000;
+    return askingPrice >= 6500000;
   };
 
   const isNewArrival = (id: string) => {
-    if (aiSettings.newArrivalVehicleIds && aiSettings.newArrivalVehicleIds.length > 0) {
+    if (aiSettings?.newArrivalVehicleIds && aiSettings.newArrivalVehicleIds.length > 0) {
       return aiSettings.newArrivalVehicleIds.includes(id);
     }
-    return id === "veh-1001" || id === "veh-1005" || id === "veh-1006";
+    const v = publicInventory.find((item) => item.id === id);
+    if (!v) return false;
+    const diffDays =
+      (Date.now() - new Date(v.dateAcquired).getTime()) / (1000 * 3600 * 24);
+    return diffDays <= 21;
   };
 
   const availableMakes = useMemo(() => {
-    return Array.from(new Set(publicInventory.map((v) => v.make))).sort();
+    const set = new Set<string>();
+    publicInventory.forEach((v) => set.add(v.make));
+    return Array.from(set).sort();
   }, [publicInventory]);
 
   const availableModels = useMemo(() => {
@@ -153,9 +175,9 @@ export default function ShowroomAllVehiclesPage() {
     selectedTrans,
     selectedBudget,
     sortBy,
-    aiSettings.spotlightVehicleIds,
-    aiSettings.featuredVehicleIds,
-    aiSettings.newArrivalVehicleIds,
+    aiSettings?.spotlightVehicleIds,
+    aiSettings?.featuredVehicleIds,
+    aiSettings?.newArrivalVehicleIds,
   ]);
 
   const comparedVehicles = useMemo(() => {
@@ -189,75 +211,73 @@ export default function ShowroomAllVehiclesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#000d10] flex flex-col selection:bg-[#000d10] selection:text-[#ffffff]">
+    <div className="min-h-screen bg-[#0f1011] text-[#ffffff] flex flex-col overflow-x-hidden selection:bg-[#847dff] selection:text-[#ffffff]">
       {/* ====================================================================
-          1. PALE DAWN-SKY TO PARCHMENT PRODUCTS HEADER (Hyer Aviation Style)
+          1. NOCTURNAL PRODUCTS HEADER (Origin Financial Style)
           ==================================================================== */}
-      <section className="hyer-sky-hero border-b border-[#d5d3d4]">
-        <header className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-[23px] pb-[16px] flex items-center justify-between">
-          <div className="flex items-center gap-[23px]">
-            <Link href="/showroom" className="hyer-nav-link flex items-center gap-[8px]">
-              <ArrowLeft className="w-4 h-4 stroke-[2.2]" />
-              <span>Back to Showroom</span>
-            </Link>
-            <Link
-              href="/showroom#featured-ai"
-              className="hyer-nav-link hidden sm:inline"
-            >
-              AI Concierge
-            </Link>
-            <Link
-              href="/showroom#sell-trade-in"
-              className="hyer-nav-link hidden md:inline"
-            >
-              Trade-In Desk
-            </Link>
-          </div>
+      <section className="origin-sky-atmosphere border-b border-white/10">
+        <header className="sticky top-0 z-40 origin-nav-glass">
+          <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-3.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 sm:gap-6">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 shrink-0 group focus:outline-none"
+                aria-label="Vehisoft Home"
+              >
+                <VehisoftIcon
+                  size={30}
+                  className="transition-transform group-hover:scale-105"
+                />
+                <span className="font-serif italic text-[20px] tracking-tight text-white font-normal">
+                  Vehisoft<sup className="text-[10px] ml-0.5 not-italic text-[#847dff]">®</sup>
+                </span>
+              </Link>
 
-          <div className="flex items-center gap-[13px]">
-            <button
-              type="button"
-              onClick={() => openAIWithPrompt()}
-              className="hyer-pill-dark"
-            >
-              <span>{aiSettings.agentName}® AI</span>
-            </button>
-            <Link
-              href="/dashboard"
-              className="hyer-pill-ghost-ink hidden sm:inline-flex"
-            >
-              <span>Staff CRM</span>
-            </Link>
+              <Link
+                href="/showroom"
+                className="inline-flex items-center gap-1.5 text-[14px] text-[#9f9fa0] hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Showroom Home</span>
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => openAIWithPrompt()}
+                className="origin-btn-primary !py-2 !px-3.5 !text-[13px]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#847dff]" />
+                <span>Ask {aiSettings.agentName}®</span>
+              </button>
+              <Link
+                href={isAuthenticated ? "/dashboard" : "/login"}
+                className="origin-btn-ghost !py-2 !px-3.5 !text-[13px] hidden sm:inline-flex"
+              >
+                <span>{isAuthenticated ? "Staff CRM" : "Staff Login"}</span>
+              </Link>
+            </div>
           </div>
         </header>
 
-        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-[38px] pb-[59px]">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[34px] items-start">
-            {/* Flush-Left Monumental Wordmark */}
+        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 pt-12 pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-7">
-              <h1 className="hyer-wordmark select-none">
-                Vehicles
-                <sup className="text-[0.28em] font-bold align-super ml-1 tracking-normal">
-                  ®
-                </sup>
+              <span className="origin-mono-label text-[#00b3dd] block mb-3">
+                ORIGIN MOTOR VAULT · COMPLETE CATALOG
+              </span>
+              <h1 className="origin-display text-white">
+                <em>Curated</em> Products.
               </h1>
-              <p className="mt-[15px] text-[17px] font-bold text-[#000d10]">
-                Complete Dealership Catalog &nbsp;·&nbsp; {publicInventory.length}{" "}
-                Available Units &nbsp;·&nbsp; QISJ 4.5+ Verified
+              <p className="text-[14px] text-[#9f9fa0] mt-3 font-mono">
+                {publicInventory.length} Verified Vehicles Available · Kenya & Japan Certified Imports · Nairobi Facility
               </p>
             </div>
 
-            {/* Right-Aligned Two-Line Statement */}
-            <div className="lg:col-span-5 lg:text-right flex flex-col lg:items-end justify-end pt-[11px]">
-              <h2 className="hyer-display text-[#000d10]">
-                Complete
-                <br />
-                Inventory.
-              </h2>
-              <p className="hyer-body text-[#000d10] mt-[22px] max-w-[420px] lg:text-right">
-                Filter our entire Nairobi fleet by make, body architecture, fuel
-                system, or budget, and compare up to three vehicles
-                side-by-side.
+            <div className="lg:col-span-5 lg:text-right">
+              <p className="text-[15px] text-[#9f9fa0] font-sans leading-relaxed">
+                Filter our complete collection by make, powertrain, or price tier, and compare up to three motor cars side-by-side.
               </p>
             </div>
           </div>
@@ -265,84 +285,86 @@ export default function ShowroomAllVehiclesPage() {
       </section>
 
       {/* ====================================================================
-          2. ARCHITECTURAL MULTI-FILTER & CATALOG GRID
+          2. MULTI-FILTER MATRIX & CATALOG GRID
           ==================================================================== */}
-      <section className="bg-[#ffffff] py-[68px] max-w-[1200px] mx-auto px-6 sm:px-8 w-full">
+      <section className="bg-[#090a0b] py-16 max-w-[1200px] mx-auto px-6 sm:px-8 w-full">
         {/* Category Pill Switcher & Keyword Search Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-[22px] pb-[31px] border-b border-[#d5d3d4]">
-          <div className="flex flex-wrap items-center gap-[11px]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-6 border-b border-white/10">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setCategory("ALL")}
-              className={
-                category === "ALL" ? "hyer-pill-dark" : "hyer-pill-ghost-ink"
-              }
+              className={`px-3.5 py-1.5 rounded-[8px] text-[13px] font-sans transition-colors ${
+                category === "ALL"
+                  ? "bg-white text-black font-medium"
+                  : "bg-white/5 text-[#9f9fa0] hover:text-white"
+              }`}
             >
               All Cars ({publicInventory.length})
             </button>
             <button
               type="button"
               onClick={() => setCategory("SPOTLIGHT")}
-              className={
+              className={`px-3.5 py-1.5 rounded-[8px] text-[13px] font-sans transition-colors ${
                 category === "SPOTLIGHT"
-                  ? "hyer-pill-dark"
-                  : "hyer-pill-ghost-ink"
-              }
+                  ? "bg-white text-black font-medium"
+                  : "bg-white/5 text-[#9f9fa0] hover:text-white"
+              }`}
             >
               Spotlight Selection
             </button>
             <button
               type="button"
               onClick={() => setCategory("NEW_ARRIVALS")}
-              className={
+              className={`px-3.5 py-1.5 rounded-[8px] text-[13px] font-sans transition-colors ${
                 category === "NEW_ARRIVALS"
-                  ? "hyer-pill-dark"
-                  : "hyer-pill-ghost-ink"
-              }
+                  ? "bg-white text-black font-medium"
+                  : "bg-white/5 text-[#9f9fa0] hover:text-white"
+              }`}
             >
               New Arrivals
             </button>
             <button
               type="button"
               onClick={() => setCategory("FEATURED")}
-              className={
+              className={`px-3.5 py-1.5 rounded-[8px] text-[13px] font-sans transition-colors ${
                 category === "FEATURED"
-                  ? "hyer-pill-dark"
-                  : "hyer-pill-ghost-ink"
-              }
+                  ? "bg-white text-black font-medium"
+                  : "bg-white/5 text-[#9f9fa0] hover:text-white"
+              }`}
             >
               Featured Stock
             </button>
           </div>
 
-          {/* Minimal Hairline Search Input */}
-          <div className="relative w-full lg:w-[360px]">
-            <Search className="w-4 h-4 text-[#000d10] absolute left-0 top-1/2 -translate-y-1/2" />
+          {/* Search Input */}
+          <div className="relative w-full lg:w-[340px]">
+            <Search className="w-4 h-4 text-[#9f9fa0] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search make, model, stock #, color..."
-              className="w-full pl-[26px] pr-[28px] py-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] placeholder-[#8e8e95] focus:outline-none rounded-none"
+              className="w-full pl-10 pr-9 py-2 bg-[#0f1011] border border-white/15 text-white placeholder-[#9f9fa0] text-[14px] rounded-[8px] focus:outline-none focus:border-[#847dff]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-0 top-1/2 -translate-y-1/2 text-[#8e8e95] hover:text-[#000d10] cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9f9fa0] hover:text-white cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
         </div>
 
-        {/* 6-Column Architectural Specification Filter Matrix */}
-        <div className="py-[31px] border-b border-[#d5d3d4] mb-[59px]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-[22px] items-end">
+        {/* Filter Specification Matrix */}
+        <div className="origin-card-graphite p-6 my-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
             {/* Make */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Make
               </label>
               <select
@@ -351,12 +373,12 @@ export default function ShowroomAllVehiclesPage() {
                   setSelectedMake(e.target.value);
                   setSelectedModel("ALL");
                 }}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="ALL">All Makes ({availableMakes.length})</option>
-                {availableMakes.map((make) => (
-                  <option key={make} value={make}>
-                    {make}
+                {availableMakes.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
                   </option>
                 ))}
               </select>
@@ -364,18 +386,18 @@ export default function ShowroomAllVehiclesPage() {
 
             {/* Model */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Model
               </label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="ALL">Any Model</option>
-                {availableModels.map((model) => (
-                  <option key={model} value={model}>
-                    {model}
+                {availableModels.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
                   </option>
                 ))}
               </select>
@@ -383,31 +405,30 @@ export default function ShowroomAllVehiclesPage() {
 
             {/* Body Type */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Body Style
               </label>
               <select
                 value={selectedBodyType}
                 onChange={(e) => setSelectedBodyType(e.target.value)}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="ALL">Any Body Style</option>
                 <option value="SUV">SUV / 4x4</option>
                 <option value="Sedan">Sedan</option>
-                <option value="Hatchback">Hatchback</option>
-                <option value="Pickup">Pickup / Double Cab</option>
+                <option value="Double Cab Pickup">Pickup / Double Cab</option>
               </select>
             </div>
 
             {/* Fuel Type */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Fuel System
               </label>
               <select
                 value={selectedFuel}
                 onChange={(e) => setSelectedFuel(e.target.value)}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="ALL">Any Fuel</option>
                 <option value="Petrol">Petrol</option>
@@ -418,31 +439,31 @@ export default function ShowroomAllVehiclesPage() {
 
             {/* Budget */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Budget (KSh.)
               </label>
               <select
                 value={selectedBudget}
                 onChange={(e) => setSelectedBudget(e.target.value)}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="ALL">Any Budget</option>
-                <option value="UNDER_3M">Under KSh 3.0M</option>
-                <option value="2M_4M">KSh 2.0M – 4.2M</option>
-                <option value="4M_6M">KSh 4.0M – 6.0M</option>
-                <option value="ABOVE_6M">Above KSh 6.0M</option>
+                <option value="UNDER_3M">Under KSh. 3.0M</option>
+                <option value="2M_4M">KSh. 2.0M – 4.2M</option>
+                <option value="4M_6M">KSh. 4.0M – 6.0M</option>
+                <option value="ABOVE_6M">Above KSh. 6.0M</option>
               </select>
             </div>
 
             {/* Sort By */}
             <div>
-              <label className="block text-[17px] font-bold text-[#000d10] mb-[11px]">
+              <label className="block text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase mb-1.5">
                 Sort Order
               </label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full pb-[11px] border-b border-[#000d10] bg-transparent text-[18px] text-[#000d10] focus:outline-none rounded-none cursor-pointer"
+                className="w-full bg-[#0f1011] border border-white/15 text-white rounded-[8px] px-3 py-2 text-[13px] focus:outline-none focus:border-[#847dff]"
               >
                 <option value="FEATURED">Showroom Priority</option>
                 <option value="PRICE_ASC">Price: Low to High</option>
@@ -453,14 +474,12 @@ export default function ShowroomAllVehiclesPage() {
             </div>
           </div>
 
-          {/* Active Results Counter & Filter Reset */}
-          <div className="mt-[23px] flex flex-wrap items-center justify-between gap-[15px]">
-            <p className="text-[17px] font-bold text-[#8e8e95]">
-              Showing {filteredAndSortedVehicles.length} of{" "}
-              {publicInventory.length} QISJ-Verified Vehicles
+          <div className="mt-4 pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-[13px]">
+            <p className="text-[#9f9fa0] font-sans">
+              Showing {filteredAndSortedVehicles.length} of {publicInventory.length} Verified Motor Cars
               {compareIds.length > 0 && (
-                <span className="text-[#000d10] ml-[15px]">
-                  · &nbsp;{compareIds.length} Selected for Comparison
+                <span className="text-[#847dff] ml-3 font-mono font-medium">
+                  · {compareIds.length}/3 In Comparison Queue
                 </span>
               )}
             </p>
@@ -475,7 +494,7 @@ export default function ShowroomAllVehiclesPage() {
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="text-[17px] font-bold text-[#000d10] underline cursor-pointer"
+                className="text-[#847dff] hover:underline cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -483,264 +502,186 @@ export default function ShowroomAllVehiclesPage() {
           </div>
         </div>
 
-        {/* Side-by-Side Comparison Matrix (Appears when 1+ vehicles selected) */}
+        {/* Comparison Drawer (Appears when 1+ vehicles selected) */}
         {comparedVehicles.length > 0 && (
-          <div className="mb-[68px] p-[34px] bg-[#0f0f1c] text-[#ffffff]">
-            <div className="flex flex-wrap items-center justify-between gap-[16px] pb-[22px] border-b border-[#d5d3d4]/25">
+          <div className="mb-12 p-6 sm:p-8 rounded-[16px] bg-[#0f1011] border border-[#847dff]/40">
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
               <div>
-                <span className="text-[17px] font-bold text-[#8e8e95] block">
-                  Side-by-Side Specification Comparison ({comparedVehicles.length}
-                  /3)
+                <span className="origin-mono-label text-[#847dff] block">
+                  TECHNICAL COMPARISON ({comparedVehicles.length}/3)
                 </span>
-                <h3 className="hyer-heading-sm text-[#ffffff] mt-[6px]">
-                  Compare Selected Vehicles.
+                <h3 className="font-serif text-[22px] text-white mt-1">
+                  Side-by-Side Vehicle Matrix
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setCompareIds([])}
-                className="hyer-pill-ghost-white"
+                className="origin-btn-ghost !py-1.5 !px-3 !text-[12px]"
               >
-                <span>Clear Comparison</span>
+                Clear Comparison
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[31px] mt-[31px]">
-              {comparedVehicles.map((v) => {
-                const prof = getVehiclePublicProfile(v);
-                return (
-                  <div
-                    key={v.id}
-                    className="border-t border-[#d5d3d4]/30 pt-[21px] flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-[11px]">
-                        <h4 className="hyer-subheading text-[#ffffff]">
-                          {v.year} {v.make} {v.model}
-                        </h4>
-                        <button
-                          type="button"
-                          onClick={() => toggleCompare(v.id)}
-                          className="text-[#8e8e95] hover:text-[#ffffff] cursor-pointer"
-                          aria-label="Remove from comparison"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <p className="text-[20px] font-bold text-[#ffffff] mt-[8px]">
-                        {formatKSh(v.askingPrice)}
-                      </p>
-
-                      <div className="mt-[21px] space-y-[11px] text-[17px] border-t border-[#d5d3d4]/20 pt-[16px]">
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Trim / Variant</span>
-                          <span className="font-bold">{v.variant}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Mileage</span>
-                          <span className="font-bold">
-                            {v.mileage.toLocaleString()} km
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Engine & Drive</span>
-                          <span className="font-bold">
-                            {prof.engineSize} · {prof.drivetrain}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Transmission</span>
-                          <span className="font-bold">{v.transmission}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Fuel Type</span>
-                          <span className="font-bold">{v.fuelType}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Body / Seats</span>
-                          <span className="font-bold">
-                            {v.bodyType} · {prof.seats} Seats
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#8e8e95]">Location</span>
-                          <span className="font-bold">{v.location}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-[23px] pt-[16px] border-t border-[#d5d3d4]/20 flex gap-[11px]">
-                      <Link
-                        href={`/showroom/vehicles/${v.id}`}
-                        className="hyer-pill-ghost-white flex-1"
-                      >
-                        <span>Inspect</span>
-                        <ArrowUpRight className="w-4 h-4" />
-                      </Link>
-                    </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+              {comparedVehicles.map((v) => (
+                <div key={v.id} className="p-4 rounded-[10px] bg-[#2e2e2e] border border-white/10">
+                  <div className="relative h-[120px] rounded-[6px] overflow-hidden mb-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.imageUrl} alt={v.model} className="w-full h-full object-cover" />
                   </div>
-                );
-              })}
+                  <h4 className="font-serif text-[16px] text-white">
+                    {v.year} {v.make} {v.model}
+                  </h4>
+                  <p className="font-mono text-[16px] text-[#00b3dd] mt-1">
+                    {formatKSh(v.askingPrice)}
+                  </p>
+                  <div className="mt-3 text-[12px] text-[#9f9fa0] space-y-1 font-mono">
+                    <p>Mileage: {v.mileage.toLocaleString()} km</p>
+                    <p>Fuel: {v.fuelType}</p>
+                    <p>Trans: {v.transmission}</p>
+                    <p>Body: {v.bodyType}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Complete Vehicle Catalog Grid */}
+        {/* Vehicle Catalog Grid */}
         {filteredAndSortedVehicles.length === 0 ? (
-          <div className="hyer-white-card py-[59px]">
-            <h3 className="hyer-heading text-[#000d10]">
-              No matching vehicles found.
+          <div className="origin-card-graphite p-12 text-center">
+            <h3 className="font-serif text-[24px] text-white">
+              No matching motor cars in current stock.
             </h3>
-            <p className="hyer-body text-[#8e8e95] mt-[16px] max-w-[540px]">
-              Clear your filters or ask {aiSettings.agentName}® to source a
-              custom import matching your specification.
+            <p className="text-[#9f9fa0] text-[14px] mt-2 font-sans">
+              Adjust your search keywords or request an import query with our 24/7 AI agent.
             </p>
-            <div className="mt-[31px] flex flex-wrap gap-[13px]">
-              <button
-                type="button"
-                onClick={resetAllFilters}
-                className="hyer-pill-dark"
-              >
-                Reset All Filters
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  openAIWithPrompt(
-                    "I'm looking for a vehicle not listed in my filter search. Can you help me find the closest match?"
-                  )
-                }
-                className="hyer-pill-ghost-ink"
-              >
-                Ask {aiSettings.agentName}® AI
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={resetAllFilters}
+              className="origin-btn-primary mt-6"
+            >
+              Reset All Filters
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-[38px] gap-y-[68px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedVehicles.map((vehicle) => {
               const profile = getVehiclePublicProfile(vehicle);
-              const isSelectedForCompare = compareIds.includes(vehicle.id);
-              const spotlightBadge = isSpotlight(vehicle.id);
-              const newArrivalBadge = isNewArrival(vehicle.id);
-              const featuredBadge = isFeatured(vehicle.id, vehicle.askingPrice);
+              const newArrival = isNewArrival(vehicle.id);
+              const featured = isFeatured(vehicle.id, vehicle.askingPrice);
+              const isCompared = compareIds.includes(vehicle.id);
 
               return (
                 <article
                   key={vehicle.id}
-                  className="bg-[#ffffff] flex flex-col justify-between group"
+                  className="origin-card-graphite overflow-hidden flex flex-col justify-between group"
                 >
                   <div>
-                    {/* Product-Crop Image (0px radius) */}
-                    <div className="relative h-[260px] bg-[#f3eee5] overflow-hidden mb-[22px]">
-                      <Link
-                        href={`/showroom/vehicles/${vehicle.id}`}
-                        className="block w-full h-full"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={vehicle.imageUrl}
-                          alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </Link>
-
-                      {/* Top-Left Pill Badges */}
-                      <div className="absolute top-[16px] left-[16px] flex flex-wrap gap-[8px] pointer-events-none">
-                        <span className="rounded-full bg-[#000d10] text-[#ffffff] px-[15px] py-[8px] text-[14px] font-bold leading-none">
+                    {/* Photo */}
+                    <Link
+                      href={`/showroom/vehicles/${vehicle.id}`}
+                      className="block relative h-[240px] bg-[#090a0b] overflow-hidden"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={vehicle.imageUrl}
+                        alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        <span className="px-2.5 py-1 rounded-[6px] bg-[#0f1011]/90 text-white text-[11px] font-mono font-medium">
                           {vehicle.year}
                         </span>
-                        {spotlightBadge && (
-                          <span className="rounded-full bg-[#bc7155] text-[#ffffff] px-[15px] py-[8px] text-[14px] font-bold leading-none">
-                            Spotlight
+                        {newArrival && (
+                          <span className="px-2.5 py-1 rounded-[6px] bg-[#847dff] text-white text-[11px] font-mono font-medium">
+                            NEW ARRIVAL
                           </span>
                         )}
-                        {newArrivalBadge && (
-                          <span className="rounded-full bg-[#ffffff] text-[#000d10] px-[15px] py-[8px] text-[14px] font-bold leading-none">
-                            New Arrival
-                          </span>
-                        )}
-                        {featuredBadge && !newArrivalBadge && !spotlightBadge && (
-                          <span className="rounded-full bg-[#ffffff] text-[#000d10] px-[15px] py-[8px] text-[14px] font-bold leading-none">
-                            Featured
+                        {featured && !newArrival && (
+                          <span className="px-2.5 py-1 rounded-[6px] bg-[#00b3dd] text-white text-[11px] font-mono font-medium">
+                            FEATURED
                           </span>
                         )}
                       </div>
+                    </Link>
 
-                      {/* Top-Right Compare Pill Button */}
-                      <button
-                        type="button"
-                        onClick={() => toggleCompare(vehicle.id)}
-                        className={`absolute bottom-[16px] right-[16px] rounded-full px-[15px] py-[9px] text-[14px] font-bold leading-none flex items-center gap-[6px] transition-colors cursor-pointer ${
-                          isSelectedForCompare
-                            ? "bg-[#000d10] text-[#ffffff]"
-                            : "bg-[#ffffff] text-[#000d10] hover:bg-[#000d10] hover:text-[#ffffff]"
-                        }`}
-                      >
-                        {isSelectedForCompare ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>Comparing</span>
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>Compare</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* 1px solid #d5d3d4 Hairline Divider Above Title */}
-                    <div className="border-t border-[#d5d3d4] pt-[21px]">
-                      <div className="flex items-baseline justify-between gap-[11px]">
-                        <h3 className="hyer-subheading text-[#000d10]">
-                          {vehicle.make} {vehicle.model}
-                        </h3>
-                        <span className="text-[17px] font-bold text-[#000d10]">
-                          {formatKSh(vehicle.askingPrice)}
-                        </span>
+                    {/* Meta info */}
+                    <div className="p-6">
+                      <div className="flex items-center justify-between text-[11px] font-mono tracking-widest text-[#9f9fa0] uppercase">
+                        <span>STOCK #{vehicle.stockNumber}</span>
+                        <span className="text-[#00b3dd]">{vehicle.bodyType}</span>
                       </div>
 
-                      <p className="hyer-body text-[#8e8e95] mt-[13px]">
-                        {vehicle.variant} · {vehicle.mileage.toLocaleString()}{" "}
-                        km · {vehicle.transmission} · {vehicle.fuelType} ·{" "}
-                        {profile.engineSize} {profile.drivetrain}
+                      <h3 className="font-serif text-[22px] text-white mt-2 group-hover:text-[#847dff] transition-colors">
+                        {vehicle.make} {vehicle.model}
+                      </h3>
+
+                      <p className="text-[13px] text-[#9f9fa0] mt-1 line-clamp-1 font-sans">
+                        {vehicle.variant} · {vehicle.mileage.toLocaleString()} km · {vehicle.transmission} · {vehicle.fuelType}
                       </p>
 
-                      <div className="mt-[13px] pt-[13px] border-t border-[#d5d3d4]/60 flex items-center justify-between text-[16px] text-[#8e8e95]">
-                        <span>
-                          {vehicle.color} · {vehicle.bodyType}
+                      <div className="mt-5 pt-4 border-t border-white/10 flex items-baseline justify-between">
+                        <div>
+                          <span className="text-[10px] font-mono tracking-widest text-[#9f9fa0] uppercase block">
+                            Direct Showroom Price
+                          </span>
+                          <span className="font-mono text-[20px] font-medium text-white block mt-0.5">
+                            {formatKSh(vehicle.askingPrice)}
+                          </span>
+                        </div>
+                        <span className="text-[12px] text-[#9f9fa0]">
+                          {vehicle.location.split("(")[0]}
                         </span>
-                        <span>Stock #{vehicle.stockNumber}</span>
                       </div>
-
-                      <p className="text-[16px] font-bold text-[#000d10] mt-[8px]">
-                        {vehicle.location} &nbsp;·&nbsp; {profile.conditionBadge}
-                      </p>
                     </div>
                   </div>
 
-                  {/* Pill Buttons (1000px radius) */}
-                  <div className="mt-[23px] pt-[17px] border-t border-[#d5d3d4] flex items-center gap-[11px]">
-                    <Link
-                      href={`/showroom/vehicles/${vehicle.id}`}
-                      className="hyer-pill-dark flex-1"
-                    >
-                      <span>View Details</span>
-                      <ArrowUpRight className="w-4 h-4" />
-                    </Link>
+                  {/* Actions & Compare Toggle */}
+                  <div className="px-6 pb-6 pt-1 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/showroom/vehicles/${vehicle.id}`}
+                        className="origin-btn-primary flex-1 !py-2 !text-[13px]"
+                      >
+                        <span>View Details</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openAIWithPrompt(
+                            `Is this ${vehicle.year} ${vehicle.make} ${vehicle.model} available for inspection?`,
+                            vehicle.id
+                          )
+                        }
+                        className="origin-btn-ghost !py-2 !px-3 !text-[13px]"
+                      >
+                        <span>Ask AI</span>
+                      </button>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() =>
-                        openAIWithPrompt(
-                          `Tell me about the ${vehicle.year} ${vehicle.make} ${vehicle.model} (Stock #${vehicle.stockNumber}).`,
-                          vehicle.id
-                        )
-                      }
-                      className="hyer-pill-ghost-ink"
+                      onClick={() => toggleCompare(vehicle.id)}
+                      className={`w-full py-1.5 rounded-[6px] text-[12px] font-mono flex items-center justify-center gap-1.5 transition-colors ${
+                        isCompared
+                          ? "bg-[#847dff]/20 text-[#847dff] border border-[#847dff]/40"
+                          : "text-[#9f9fa0] hover:text-white"
+                      }`}
                     >
-                      <span>Ask AI</span>
+                      {isCompared ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Selected in Comparison</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add to Comparison</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </article>
@@ -750,71 +691,33 @@ export default function ShowroomAllVehiclesPage() {
         )}
       </section>
 
-      {/* ====================================================================
-          3. THE SINGLE FEATURED CLAY CARD (#bc7155 — One per page, 0px radius)
-          ==================================================================== */}
-      <section className="max-w-[1200px] mx-auto px-6 sm:px-8 pb-[80px] w-full">
-        <div className="hyer-clay-card">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-[38px] items-center">
-            <div className="lg:col-span-8">
-              <span className="text-[17px] font-bold uppercase tracking-wider text-[#ffffff] block mb-[15px]">
-                Bespoke Vehicle Advisory · {aiSettings.agentName}®
-              </span>
-              <h2 className="hyer-heading text-[#ffffff]">
-                Need Help Choosing Between Models?
-              </h2>
-              <p className="hyer-body text-[#ffffff] mt-[17px] max-w-[620px]">
-                Ask our 24/7 digital sales consultant to compare fuel economy,
-                maintenance costs, ground clearance, or bank financing deposits
-                across any vehicles in our catalog.
-              </p>
-            </div>
-            <div className="lg:col-span-4 flex flex-wrap lg:justify-end gap-[13px]">
-              <button
-                type="button"
-                onClick={() =>
-                  openAIWithPrompt(
-                    "Help me compare your available SUVs and recommend the best option for my budget."
-                  )
-                }
-                className="hyer-pill-dark"
-              >
-                <span>Launch AI Advisor</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+      {/* Footer */}
+      <footer className="bg-[#090a0b] border-t border-white/10 py-12">
+        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <VehisoftIcon size={36} className="text-white" />
+            <span className="font-serif italic text-[24px] text-white">
+              Vehisoft<sup className="text-[12px] ml-0.5 not-italic text-[#847dff]">®</sup>
+            </span>
           </div>
-        </div>
-      </section>
 
-      {/* ====================================================================
-          4. FOOTER TERMINAL — DEEP INK (#000d10)
-          ==================================================================== */}
-      <footer className="bg-[#000d10] text-[#ffffff] pt-[68px] pb-[52px] mt-auto">
-        <div className="max-w-[1200px] mx-auto px-6 sm:px-8 flex flex-col sm:flex-row sm:items-end justify-between gap-[23px]">
-          <div>
-            <div className="hyer-hero-scale text-[#ffffff] select-none">
-              {aiSettings.heroWordmark || "Vehisoft"}
-              <sup className="text-[0.25em] font-bold align-super ml-1 tracking-normal">
-                ®
-              </sup>
-            </div>
-            <p className="text-[17px] text-[#8e8e95] mt-[16px]">
-              {aiSettings.location}
-            </p>
+          <div className="flex flex-wrap items-center gap-3 text-[12px] font-mono text-[#9f9fa0]">
+            <span>Ngong Road, Nairobi</span>
+            <span className="text-white/20">·</span>
+            <a href="tel:+254704611033" className="text-white hover:text-[#00b3dd] transition-colors">+254 704 611 033</a>
+            <span>/</span>
+            <a href="tel:+25492986825" className="text-white hover:text-[#00b3dd] transition-colors">+254 929 868 25</a>
+            <span className="text-white/20">·</span>
+            <a href="mailto:versalylabs@gmail.com" className="text-[#00b3dd] hover:underline">versalylabs@gmail.com</a>
           </div>
-          <div className="flex flex-wrap gap-[13px]">
-            <Link href="/showroom" className="hyer-pill-ghost-white">
-              <span>Return to Homepage</span>
-            </Link>
-            <Link href="/ai-settings" className="hyer-pill-ghost-white">
-              <span>Manage Website in Admin</span>
-            </Link>
-          </div>
+
+          <p className="text-[13px] text-[#9f9fa0] font-sans">
+            © {new Date().getFullYear()} Vehisoft® Motor Dealership Management System. All rights reserved.
+          </p>
         </div>
       </footer>
 
-      {/* 24/7 AI Sales Consultant Floating & Dockable Widget */}
+      {/* 24/7 AI Sales Consultant Widget */}
       <AISalesAgentWidget
         isOpen={aiOpen}
         onOpen={() => setAiOpen(true)}

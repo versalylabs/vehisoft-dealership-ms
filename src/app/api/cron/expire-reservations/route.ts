@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { isDatabaseConfigured } from "@/lib/demo-store";
 
@@ -6,7 +6,18 @@ import { isDatabaseConfigured } from "@/lib/demo-store";
  * Vercel Cron Route: Automatically reverts expired vehicle reservations
  * (Reserved -> Available) as specified in Section 7 of the Dealership spec.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized cron invocation" },
+        { status: 401 }
+      );
+    }
+  }
+
   if (!isDatabaseConfigured()) {
     return NextResponse.json({
       ok: true,

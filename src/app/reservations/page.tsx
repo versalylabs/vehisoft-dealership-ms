@@ -157,11 +157,23 @@ export default function ReservationsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 text-xs">
-                {reservations.map((res) => {
-                  const daysLeft = Math.ceil(
-                    (new Date(res.expiryDate).getTime() - Date.now()) /
-                      86400000
-                  );
+                {reservations.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center">
+                      <p className="text-sm font-bold text-slate-900">
+                        No vehicle reservations on record
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Use the form on the right to place a customer hold on available inventory.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  reservations.map((res) => {
+                    const daysLeft = Math.ceil(
+                      (new Date(res.expiryDate).getTime() - Date.now()) /
+                        86400000
+                    );
 
                   return (
                     <tr key={res.id} className="hover:bg-slate-50">
@@ -238,8 +250,9 @@ export default function ReservationsPage() {
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
+                })
+              )}
+            </tbody>
             </table>
           </div>
         </div>

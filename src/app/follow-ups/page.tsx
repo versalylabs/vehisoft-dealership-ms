@@ -156,80 +156,102 @@ export default function FollowUpsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 text-xs">
-                {filteredActivities.map((act) => (
-                  <tr key={act.id} className="hover:bg-slate-50">
-                    <td className="py-3.5 px-4">
-                      <Link
-                        href={`/customers/${act.customerId}`}
-                        className="font-bold text-slate-900 hover:text-blue-600 text-sm"
-                      >
-                        {act.customerName}
-                      </Link>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        {act.notes}
+                {filteredActivities.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center">
+                      <p className="text-sm font-bold text-slate-900">
+                        No follow-ups in this view
                       </p>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-semibold text-slate-800">
-                      {act.vehicleId ? (
-                        <Link
-                          href={`/inventory/${act.vehicleId}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {act.vehicleTitle}
-                        </Link>
-                      ) : (
-                        act.vehicleTitle
-                      )}
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-bold text-[11px]">
-                        {act.type.replace("_", " ")}
-                      </span>
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        {formatDate(act.scheduledAt)}
+                      <p className="text-xs text-slate-500 mt-1">
+                        You&apos;re all caught up on this filter, or you can schedule a new follow-up on the right.
                       </p>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-semibold text-slate-700">
-                      {act.staffName.split(" ")[0]}
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                          act.status === "DUE"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-emerald-100 text-emerald-800"
-                        }`}
-                      >
-                        {act.status === "DUE" ? "Due" : "Completed"}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right">
-                      {act.status === "DUE" ? (
+                      {statusFilter !== "ALL" && (
                         <button
                           type="button"
-                          onClick={() => {
-                            updateActivityStatus(act.id, "COMPLETED");
-                            setToast(
-                              `Marked follow-up with ${act.customerName} as completed.`
-                            );
-                            setTimeout(() => setToast(""), 3000);
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors"
+                          onClick={() => setStatusFilter("ALL")}
+                          className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Complete</span>
+                          Show All Follow-ups
                         </button>
-                      ) : (
-                        <span className="text-slate-400 text-[11px]">Done</span>
                       )}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredActivities.map((act) => (
+                    <tr key={act.id} className="hover:bg-slate-50">
+                      <td className="py-3.5 px-4">
+                        <Link
+                          href={`/customers/${act.customerId}`}
+                          className="font-bold text-slate-900 hover:text-blue-600 text-sm"
+                        >
+                          {act.customerName}
+                        </Link>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          {act.notes}
+                        </p>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-semibold text-slate-800">
+                        {act.vehicleId ? (
+                          <Link
+                            href={`/inventory/${act.vehicleId}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {act.vehicleTitle}
+                          </Link>
+                        ) : (
+                          act.vehicleTitle
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 font-bold text-[11px]">
+                          {act.type.replace("_", " ")}
+                        </span>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          {formatDate(act.scheduledAt)}
+                        </p>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-semibold text-slate-700">
+                        {act.staffName.split(" ")[0]}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            act.status === "DUE"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-emerald-100 text-emerald-800"
+                          }`}
+                        >
+                          {act.status === "DUE" ? "Due" : "Completed"}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        {act.status === "DUE" ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateActivityStatus(act.id, "COMPLETED");
+                              setToast(
+                                `Marked follow-up with ${act.customerName} as completed.`
+                              );
+                              setTimeout(() => setToast(""), 3000);
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Complete</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">Done</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

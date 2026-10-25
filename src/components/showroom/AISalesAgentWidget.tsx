@@ -19,6 +19,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useDealership } from "@/context/DealershipContext";
+import { useAuth } from "@/context/AuthContext";
 import {
   AIMessage,
   AIConversation,
@@ -52,6 +53,7 @@ export function AISalesAgentWidget({
     addTestDrive,
     upsertAIConversation,
   } = useDealership();
+  const { isAuthenticated } = useAuth();
 
   const [channel, setChannel] = useState<"WEBSITE" | "WHATSAPP">("WEBSITE");
   const [sessionId] = useState<string>(() => `ai-live-${Date.now()}`);
@@ -400,61 +402,61 @@ export function AISalesAgentWidget({
 
   return (
     <>
-      {/* Floating Launcher Pill Button when closed (1000px radius, #000d10 bg, #ffffff text) */}
+      {/* Floating Launcher Pill Button when closed (Origin Pill Style) */}
       {!isOpen && (
         <button
           type="button"
           onClick={onOpen}
-          className="fixed bottom-6 right-6 z-50 hyer-pill-dark !px-[23px] !py-[16px]"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 origin-btn-primary !rounded-full !px-5 !py-3.5 !bg-white !text-black shadow-2xl hover:scale-105 transition-transform"
         >
-          <Bot className="w-5 h-5 stroke-[2]" />
-          <span>{aiSettings.agentName}® 24/7 AI</span>
+          <Sparkles className="w-4 h-4 text-[#847dff]" />
+          <span className="font-sans font-medium text-[14px]">{aiSettings.agentName}® 24/7 AI</span>
         </button>
       )}
 
-      {/* AI Sales Consultant Panel (0px radius, #000d10 border, no shadow) */}
+      {/* AI Sales Consultant Panel (Origin Dark Room Styling) */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[440px] h-[640px] max-h-[calc(100vh-3rem)] bg-[#ffffff] border border-[#000d10] flex flex-col overflow-hidden">
-          {/* Header (#000d10 Deep Ink or #151623 Charcoal Deck) */}
+        <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[440px] h-[640px] max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] bg-[#0f1011] text-white border border-white/20 rounded-[16px] flex flex-col overflow-hidden shadow-2xl">
+          {/* Header */}
           <div
-            className={`px-[22px] py-[17px] text-[#ffffff] shrink-0 ${
-              channel === "WHATSAPP" ? "bg-[#151623]" : "bg-[#000d10]"
+            className={`px-4 sm:px-5 py-3.5 text-white shrink-0 border-b border-white/10 ${
+              channel === "WHATSAPP" ? "bg-[#131d27]" : "bg-[#090a0b]"
             }`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-[11px]">
-                  <h3 className="text-[20px] font-bold leading-none text-[#ffffff]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center flex-wrap gap-2">
+                  <h3 className="font-serif text-[18px] text-white font-normal">
                     {aiSettings.agentName}®
                   </h3>
-                  <span className="rounded-full border border-[#ffffff]/40 px-[11px] py-[4px] text-[12px] font-bold text-[#ffffff]">
-                    24/7 AI Concierge
+                  <span className="origin-mono-label !text-[10px] text-[#00b3dd] px-2 py-0.5 rounded-full bg-white/10">
+                    24/7 CONCIERGE
                   </span>
                 </div>
-                <p className="text-[14px] text-[#8e8e95] mt-[6px]">
+                <p className="text-[12px] text-[#9f9fa0] mt-0.5 truncate font-sans">
                   Connected to Live Showroom Inventory & CRM
                 </p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 text-[#8e8e95] hover:text-[#ffffff] transition-colors cursor-pointer"
+                className="p-1.5 text-[#9f9fa0] hover:text-white transition-colors cursor-pointer shrink-0"
                 aria-label="Close AI Sales Agent"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Channel Switcher (1000px Pill Buttons) */}
-            <div className="mt-[15px] pt-[13px] border-t border-[#d5d3d4]/20 flex items-center justify-between">
-              <div className="flex items-center gap-[8px]">
+            {/* Channel Switcher */}
+            <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setChannel("WEBSITE")}
-                  className={`rounded-full px-[13px] py-[6px] text-[13px] font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`rounded-full px-3 py-1 text-[12px] font-sans transition-colors cursor-pointer flex items-center gap-1.5 ${
                     channel === "WEBSITE"
-                      ? "bg-[#ffffff] text-[#000d10]"
-                      : "border border-[#d5d3d4]/30 text-[#8e8e95] hover:text-[#ffffff]"
+                      ? "bg-white text-black font-medium"
+                      : "border border-white/20 text-[#9f9fa0] hover:text-white"
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -463,10 +465,10 @@ export function AISalesAgentWidget({
                 <button
                   type="button"
                   onClick={() => setChannel("WHATSAPP")}
-                  className={`rounded-full px-[13px] py-[6px] text-[13px] font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`rounded-full px-3 py-1 text-[12px] font-sans transition-colors cursor-pointer flex items-center gap-1.5 ${
                     channel === "WHATSAPP"
-                      ? "bg-[#ffffff] text-[#000d10]"
-                      : "border border-[#d5d3d4]/30 text-[#8e8e95] hover:text-[#ffffff]"
+                      ? "bg-white text-black font-medium"
+                      : "border border-white/20 text-[#9f9fa0] hover:text-white"
                   }`}
                 >
                   <Smartphone className="w-3.5 h-3.5" />
@@ -477,7 +479,7 @@ export function AISalesAgentWidget({
               <button
                 type="button"
                 onClick={() => setShowQuickLeadForm((v) => !v)}
-                className="text-[13px] font-bold text-[#ffffff] underline underline-offset-2 cursor-pointer"
+                className="text-[12px] font-sans text-[#847dff] hover:underline cursor-pointer"
               >
                 {customerPhone ? `✓ ${customerName}` : "+ Share Contact"}
               </button>
@@ -486,10 +488,10 @@ export function AISalesAgentWidget({
 
           {/* Active Vehicle Context Bar */}
           {focusedVehicle && (
-            <div className="px-[22px] py-[11px] bg-[#ffffff] border-b border-[#d5d3d4] flex items-center justify-between gap-2 shrink-0">
+            <div className="px-4 py-2.5 bg-[#131d27] border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-2 min-w-0">
-                <Car className="w-4 h-4 text-[#000d10] shrink-0" />
-                <span className="text-[14px] font-bold text-[#000d10] truncate">
+                <Car className="w-4 h-4 text-[#00b3dd] shrink-0" />
+                <span className="text-[13px] font-medium text-white truncate">
                   {focusedVehicle.year} {focusedVehicle.make}{" "}
                   {focusedVehicle.model} ({formatKSh(focusedVehicle.askingPrice)})
                 </span>
@@ -501,7 +503,7 @@ export function AISalesAgentWidget({
                     `Can I come see the ${focusedVehicle.year} ${focusedVehicle.make} ${focusedVehicle.model} tomorrow?`
                   )
                 }
-                className="rounded-full bg-[#000d10] text-[#ffffff] px-[13px] py-[6px] text-[12px] font-bold shrink-0 cursor-pointer"
+                className="origin-btn-primary !py-1 !px-2.5 !text-[11px] shrink-0 cursor-pointer"
               >
                 Book Viewing
               </button>
@@ -510,17 +512,19 @@ export function AISalesAgentWidget({
 
           {/* Live CRM Sync Status Banner */}
           {statusBanner && (
-            <div className="px-[22px] py-[11px] bg-[#bc7155] text-[#ffffff] flex items-center justify-between gap-2 shrink-0">
-              <div className="flex items-center gap-1.5 text-[13px] font-bold">
+            <div className="px-4 py-2 bg-[#847dff] text-white flex items-center justify-between gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 text-[12px] font-medium">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{statusBanner}</span>
               </div>
-              <Link
-                href="/ai-conversations"
-                className="text-[12px] font-bold text-[#ffffff] underline shrink-0"
-              >
-                View in CRM →
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/ai-conversations"
+                  className="text-[12px] font-medium text-white underline shrink-0"
+                >
+                  View CRM →
+                </Link>
+              )}
             </div>
           )}
 
@@ -528,28 +532,28 @@ export function AISalesAgentWidget({
           {showQuickLeadForm && (
             <form
               onSubmit={handleQuickLeadSubmit}
-              className="p-[22px] bg-[#ffffff] border-b border-[#d5d3d4] space-y-[13px] shrink-0"
+              className="p-5 bg-[#2e2e2e] border-b border-white/10 space-y-3 shrink-0"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-bold text-[#000d10]">
+                <span className="text-[14px] font-medium text-white">
                   Leave your details for our sales team
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowQuickLeadForm(false)}
-                  className="text-[14px] text-[#8e8e95] hover:text-[#000d10]"
+                  className="text-[13px] text-[#9f9fa0] hover:text-white"
                 >
                   Cancel
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-[13px]">
+              <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
                   required
                   placeholder="Your Name"
                   value={leadFormName}
                   onChange={(e) => setLeadFormName(e.target.value)}
-                  className="pb-[8px] text-[15px] border-b border-[#000d10] bg-transparent text-[#000d10] focus:outline-none rounded-none"
+                  className="p-2 text-[14px] bg-[#0f1011] border border-white/15 text-white rounded-[6px] focus:outline-none focus:border-[#847dff]"
                 />
                 <input
                   type="tel"
@@ -557,17 +561,17 @@ export function AISalesAgentWidget({
                   placeholder="Phone Number"
                   value={leadFormPhone}
                   onChange={(e) => setLeadFormPhone(e.target.value)}
-                  className="pb-[8px] text-[15px] border-b border-[#000d10] bg-transparent text-[#000d10] focus:outline-none rounded-none"
+                  className="p-2 text-[14px] bg-[#0f1011] border border-white/15 text-white rounded-[6px] focus:outline-none focus:border-[#847dff]"
                 />
               </div>
-              <button type="submit" className="hyer-pill-dark w-full !py-[11px]">
+              <button type="submit" className="origin-btn-primary w-full !py-2 !text-[13px]">
                 Connect with Sales & Save to CRM
               </button>
             </form>
           )}
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-[22px] space-y-[21px] bg-[#ffffff]">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-[#090a0b]">
             {messages.map((msg) => {
               const isCustomer = msg.sender === "CUSTOMER";
               const recommendedVehicles = (msg.recommendedVehicleIds || [])
@@ -582,32 +586,32 @@ export function AISalesAgentWidget({
                   }`}
                 >
                   <div
-                    className={`max-w-[90%] p-[16px] text-[16px] leading-[24px] ${
+                    className={`max-w-[92%] p-3.5 text-[14px] leading-relaxed rounded-[10px] ${
                       isCustomer
-                        ? "bg-[#000d10] text-[#ffffff]"
-                        : "bg-[#ffffff] text-[#000d10] border border-[#d5d3d4]"
+                        ? "bg-[#3f4041] text-white"
+                        : "bg-[#2e2e2e] text-white border border-white/10"
                     }`}
                   >
                     <p className="whitespace-pre-line">{msg.text}</p>
 
                     {/* Action Badge if CRM Lead / Test Drive / Handoff occurred */}
                     {msg.actionTaken && (
-                      <div className="mt-[13px] pt-[11px] border-t border-[#d5d3d4] flex items-center gap-2 text-[13px] font-bold text-[#000d10]">
+                      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center gap-1.5 text-[12px] font-mono text-[#00b3dd]">
                         {msg.actionTaken === "LEAD_CREATED" && (
                           <>
-                            <UserCheck className="w-4 h-4" />
+                            <UserCheck className="w-3.5 h-3.5" />
                             <span>Lead automatically created in Dealership CRM</span>
                           </>
                         )}
                         {msg.actionTaken === "TEST_DRIVE_BOOKED" && (
                           <>
-                            <CalendarCheck className="w-4 h-4" />
+                            <CalendarCheck className="w-3.5 h-3.5" />
                             <span>Test Drive logged in CRM schedule</span>
                           </>
                         )}
                         {msg.actionTaken === "HANDOFF_TRIGGERED" && (
                           <>
-                            <ShieldAlert className="w-4 h-4" />
+                            <ShieldAlert className="w-3.5 h-3.5" />
                             <span>AI → Human Handoff · Stage: Negotiation</span>
                           </>
                         )}
@@ -615,40 +619,39 @@ export function AISalesAgentWidget({
                     )}
                   </div>
 
-                  {/* Inline Recommended Vehicle Cards (0px radius, hairline border) */}
+                  {/* Inline Recommended Vehicle Cards */}
                   {recommendedVehicles.length > 0 && (
-                    <div className="mt-[13px] w-full space-y-[11px]">
+                    <div className="mt-3 w-full space-y-2">
                       {recommendedVehicles.map((veh) => {
                         if (!veh) return null;
                         return (
                           <div
                             key={veh.id}
-                            className="bg-[#ffffff] border border-[#d5d3d4] p-[13px] flex items-center gap-[13px]"
+                            className="bg-[#0f1011] border border-white/10 rounded-[8px] p-3 flex items-center gap-3"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={veh.imageUrl}
                               alt={`${veh.make} ${veh.model}`}
-                              className="w-16 h-12 object-cover shrink-0 bg-[#f3eee5]"
+                              className="w-16 h-12 object-cover shrink-0 rounded-[4px] bg-[#090a0b]"
                             />
                             <div className="min-w-0 flex-1">
-                              <p className="text-[15px] font-bold text-[#000d10] truncate">
+                              <p className="font-serif text-[14px] text-white truncate">
                                 {veh.year} {veh.make} {veh.model}
                               </p>
-                              <p className="text-[14px] font-bold text-[#000d10]">
+                              <p className="font-mono text-[13px] text-[#00b3dd]">
                                 {formatKSh(veh.askingPrice)}
                               </p>
-                              <p className="text-[13px] text-[#8e8e95]">
-                                {veh.mileage.toLocaleString()} km ·{" "}
-                                {veh.transmission}
+                              <p className="text-[11px] text-[#9f9fa0] font-sans">
+                                {veh.mileage.toLocaleString()} km · {veh.transmission}
                               </p>
                             </div>
-                            <div className="flex flex-col gap-[6px] shrink-0">
+                            <div className="flex flex-col gap-1.5 shrink-0">
                               {onSelectVehicle ? (
                                 <button
                                   type="button"
                                   onClick={() => onSelectVehicle(veh.id)}
-                                  className="rounded-full bg-[#000d10] text-[#ffffff] px-[13px] py-[6px] text-[12px] font-bold flex items-center gap-1"
+                                  className="origin-btn-primary !py-1 !px-2.5 !text-[11px]"
                                 >
                                   <span>Details</span>
                                   <ArrowUpRight className="w-3 h-3" />
@@ -656,7 +659,7 @@ export function AISalesAgentWidget({
                               ) : (
                                 <Link
                                   href={`/showroom/vehicles/${veh.id}`}
-                                  className="rounded-full bg-[#000d10] text-[#ffffff] px-[13px] py-[6px] text-[12px] font-bold flex items-center gap-1"
+                                  className="origin-btn-primary !py-1 !px-2.5 !text-[11px]"
                                 >
                                   <span>Details</span>
                                   <ArrowUpRight className="w-3 h-3" />
@@ -670,7 +673,7 @@ export function AISalesAgentWidget({
                                     `I'm interested in the ${veh.year} ${veh.make} ${veh.model}`
                                   );
                                 }}
-                                className="rounded-full border border-[#000d10] text-[#000d10] px-[13px] py-[5px] text-[12px] font-bold"
+                                className="origin-btn-ghost !py-1 !px-2.5 !text-[11px]"
                               >
                                 Enquire
                               </button>
@@ -681,15 +684,15 @@ export function AISalesAgentWidget({
                     </div>
                   )}
 
-                  {/* Quick Reply Suggestion Pills (1000px radius) */}
+                  {/* Quick Reply Suggestion Pills */}
                   {msg.quickReplies && msg.quickReplies.length > 0 && (
-                    <div className="mt-[11px] flex flex-wrap gap-[8px]">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {msg.quickReplies.map((qr) => (
                         <button
                           key={qr}
                           type="button"
                           onClick={() => handleSendMessage(qr)}
-                          className="rounded-full border border-[#000d10] bg-[#ffffff] hover:bg-[#000d10] text-[#000d10] hover:text-[#ffffff] px-[15px] py-[8px] text-[13px] font-bold transition-colors cursor-pointer"
+                          className="rounded-full border border-white/20 bg-white/5 hover:bg-white text-[#9f9fa0] hover:text-black px-3 py-1 text-[12px] font-sans transition-colors cursor-pointer"
                         >
                           {qr}
                         </button>
@@ -697,7 +700,7 @@ export function AISalesAgentWidget({
                     </div>
                   )}
 
-                  <span className="text-[12px] text-[#8e8e95] mt-[6px]">
+                  <span className="text-[10px] font-mono text-[#9f9fa0] mt-1">
                     {isCustomer ? "You" : aiSettings.agentName} · {msg.timestamp}
                   </span>
                 </div>
@@ -712,18 +715,18 @@ export function AISalesAgentWidget({
               e.preventDefault();
               handleSendMessage();
             }}
-            className="p-[16px] bg-[#ffffff] border-t border-[#d5d3d4] flex items-center gap-[11px] shrink-0"
+            className="p-3 bg-[#0f1011] border-t border-white/10 flex items-center gap-2 shrink-0"
           >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about stock, budget, sunroof, or viewing..."
-              className="flex-1 text-[16px] pb-[8px] border-b border-[#000d10] bg-transparent text-[#000d10] focus:outline-none rounded-none"
+              placeholder="Ask about stock, budget, or viewing..."
+              className="flex-1 text-[14px] px-3.5 py-2 bg-[#000000] border border-white/15 rounded-[8px] text-white placeholder-[#9f9fa0] focus:outline-none focus:border-[#847dff]"
             />
             <button
               type="submit"
-              className="hyer-circle-btn !w-10 !h-10 shrink-0"
+              className="w-9 h-9 rounded-full bg-white hover:opacity-90 text-black flex items-center justify-center shrink-0 transition-opacity cursor-pointer"
               aria-label="Send message"
             >
               <Send className="w-4 h-4" />

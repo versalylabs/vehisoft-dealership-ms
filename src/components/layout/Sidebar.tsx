@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { ROLE_LABELS } from "@/lib/auth";
+import { VehisoftLogo } from "@/components/brand/VehisoftLogo";
 
 interface NavChild {
   label: string;
@@ -75,21 +76,34 @@ export function Sidebar({
       visible: true,
       children: [
         { label: "Public Website (Live)", href: "/" },
-        { label: "AI Conversations", href: "/ai-conversations" },
-        { label: "AI Agent Settings", href: "/ai-settings" },
+        { label: "Products Catalog (Live)", href: "/showroom/vehicles" },
+        ...(permissions.canManageCRM || permissions.canManageSales
+          ? [{ label: "AI Conversations", href: "/ai-conversations" }]
+          : []),
+        ...(permissions.canManageSettings
+          ? [{ label: "AI Agent Settings", href: "/ai-settings" }]
+          : []),
       ],
     },
     {
       label: "Sales",
       icon: <Kanban className="w-5 h-5" />,
-      visible: permissions.canManageCRM || permissions.canManageSales || user.role === "INVENTORY_STAFF",
+      visible: permissions.canManageCRM || permissions.canManageSales,
       children: [
-        { label: "Leads", href: "/leads" },
-        { label: "Pipeline", href: "/pipeline" },
-        { label: "Follow-ups", href: "/follow-ups" },
-        { label: "Test Drives", href: "/test-drives" },
-        { label: "Reservations", href: "/reservations" },
-        { label: "Sales", href: "/sales" },
+        ...(permissions.canManageCRM
+          ? [
+              { label: "Leads", href: "/leads" },
+              { label: "Pipeline", href: "/pipeline" },
+              { label: "Follow-ups", href: "/follow-ups" },
+              { label: "Test Drives", href: "/test-drives" },
+            ]
+          : []),
+        ...(permissions.canManageSales
+          ? [
+              { label: "Reservations", href: "/reservations" },
+              { label: "Sales", href: "/sales" },
+            ]
+          : []),
       ],
     },
     {
@@ -161,22 +175,18 @@ export function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 h-screen shrink-0 bg-[#000d10] text-[#ffffff] border-r border-[#d5d3d4]/20 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 h-screen shrink-0 bg-[#0f1011] text-[#ffffff] border-r border-white/10 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 shrink-0 px-5 flex items-center justify-between border-b border-[#d5d3d4]/15">
-          <Link href="/dashboard" className="flex items-center justify-between w-full">
-            <div>
-              <span className="font-bold text-[#ffffff] tracking-tight text-[23px] block leading-none">
-                Vehisoft<sup className="text-[11px] ml-0.5">®</sup>
-              </span>
-              <span className="text-[12px] text-[#8e8e95] font-normal block mt-1">
-                Dealership OS · KSh.
-              </span>
-            </div>
-          </Link>
+        <div className="h-16 shrink-0 px-4 flex items-center justify-between border-b border-white/10">
+          <VehisoftLogo
+            size="md"
+            theme="light"
+            subtitle="Dealership OS · KSh."
+            href="/dashboard"
+          />
         </div>
 
         {/* Navigation Links */}
@@ -191,10 +201,10 @@ export function Sidebar({
                     key={item.label}
                     href={item.href!}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-sm font-medium transition-colors ${
                       active
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        ? "bg-white text-black font-semibold shadow-sm"
+                        : "text-white/70 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     {item.icon}
@@ -213,10 +223,10 @@ export function Sidebar({
                   <button
                     type="button"
                     onClick={() => toggleGroup(item.label)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[8px] text-sm font-medium transition-colors ${
                       hasActiveChild
-                        ? "text-white bg-slate-800/80"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        ? "text-white bg-white/10"
+                        : "text-white/70 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -224,14 +234,14 @@ export function Sidebar({
                       <span>{item.label}</span>
                     </div>
                     {groupOpen ? (
-                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                      <ChevronDown className="w-4 h-4 text-white/50" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ChevronRight className="w-4 h-4 text-white/50" />
                     )}
                   </button>
 
                   {groupOpen && (
-                    <div className="pl-9 pr-2 space-y-0.5 border-l border-slate-800 ml-5">
+                    <div className="pl-8 pr-2 py-1 space-y-0.5 border-l border-white/10 ml-5">
                       {item.children.map((child) => {
                         const childActive =
                           pathname === child.href.split("?")[0];
@@ -240,10 +250,10 @@ export function Sidebar({
                             key={child.label}
                             href={child.href}
                             onClick={() => setMobileOpen(false)}
-                            className={`block px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                            className={`block px-3 py-2 rounded-[6px] text-xs font-mono transition-colors ${
                               childActive
-                                ? "bg-blue-600/20 text-blue-400 font-semibold"
-                                : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                                ? "bg-[#847dff]/20 text-[#847dff] font-semibold"
+                                : "text-white/60 hover:text-white hover:bg-white/5"
                             }`}
                           >
                             {child.label}
@@ -258,9 +268,9 @@ export function Sidebar({
         </nav>
 
         {/* Active User & Role Footer */}
-        <div className="p-3.5 m-2.5 rounded-xl shrink-0 rb-liquid-glass-dark">
+        <div className="p-3.5 m-2.5 rounded-[12px] shrink-0 bg-[#17181a] border border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-600/25 border border-blue-400/40 flex items-center justify-center text-blue-300 font-semibold text-sm shadow-inner">
+            <div className="w-9 h-9 rounded-full bg-[#847dff]/20 border border-[#847dff]/40 flex items-center justify-center text-[#847dff] font-mono text-xs font-bold shrink-0">
               {user.name
                 .split(" ")
                 .map((n) => n[0])
@@ -268,12 +278,12 @@ export function Sidebar({
                 .slice(0, 2)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-white truncate">
+              <p className="text-xs font-semibold text-white truncate font-sans">
                 {user.name}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span className="text-[11px] text-emerald-400 font-medium truncate">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#00b3dd] shrink-0" />
+                <span className="text-[11px] text-[#00b3dd] font-mono tracking-wide truncate">
                   {ROLE_LABELS[user.role]}
                 </span>
               </div>

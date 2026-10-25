@@ -34,6 +34,7 @@ export default function TestDrivesPage() {
     "Customer impressed — proceeding to price negotiation"
   );
   const [toast, setToast] = useState("");
+  const [completeError, setCompleteError] = useState("");
 
   const salespeople = users.filter(
     (u) => u.role === "SALESPERSON" || u.role === "MANAGER"
@@ -89,6 +90,14 @@ export default function TestDrivesPage() {
   const handleCompleteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!completingId) return;
+    const targetTd = testDrives.find((t) => t.id === completingId);
+    if (targetTd && Number(mileageInInput) < targetTd.mileageOut) {
+      setCompleteError(
+        `Return odometer reading (${formatMileage(Number(mileageInInput))}) cannot be less than starting Mileage Out (${formatMileage(targetTd.mileageOut)}).`
+      );
+      return;
+    }
+    setCompleteError("");
     completeTestDrive(completingId, Number(mileageInInput), outcomeInput);
     setCompletingId(null);
     setToast("Test drive completed and vehicle odometer mileage updated.");
@@ -146,7 +155,7 @@ export default function TestDrivesPage() {
       </div>
 
       {/* Status Filter Pills */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {["ALL", "SCHEDULED", "COMPLETED", "CANCELLED"].map((st) => (
           <button
             key={st}
@@ -185,103 +194,130 @@ export default function TestDrivesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 text-xs">
-                {filteredDrives.map((td) => {
-                  const distanceDriven =
-                    td.mileageIn && td.mileageIn >= td.mileageOut
-                      ? td.mileageIn - td.mileageOut
-                      : null;
-
-                  return (
-                    <tr key={td.id} className="hover:bg-slate-50">
-                      <td className="py-3.5 px-4">
-                        <Link
-                          href={`/customers/${td.customerId}`}
-                          className="font-bold text-slate-900 hover:text-blue-600 text-sm"
+                {filteredDrives.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 px-4 text-center">
+                      <p className="text-sm font-bold text-slate-900">
+                        No test drives match this status filter
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Switch to All Test Drives or schedule a new appointment on the right.
+                      </p>
+                      {statusFilter !== "ALL" && (
+                        <button
+                          type="button"
+                          onClick={() => setStatusFilter("ALL")}
+                          className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
                         >
-                          {td.customerName}
-                        </Link>
-                        <p className="text-[11px] text-slate-500">
-                          Driver: {td.driverName} ({td.driverLicenseNo})
-                        </p>
-                      </td>
+                          Show All Test Drives
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredDrives.map((td) => {
+                    const distanceDriven =
+                      td.mileageIn && td.mileageIn >= td.mileageOut
+                        ? td.mileageIn - td.mileageOut
+                        : null;
 
-                      <td className="py-3.5 px-4">
-                        <Link
-                          href={`/inventory/${td.vehicleId}`}
-                          className="font-bold text-blue-600 hover:underline flex items-center gap-1"
-                        >
-                          <Car className="w-3.5 h-3.5" />
-                          {td.vehicleTitle}
-                        </Link>
-                        <span className="font-mono text-[11px] text-slate-500">
-                          {td.stockNumber}
-                        </span>
-                      </td>
+                    return (
+                      <tr key={td.id} className="hover:bg-slate-50">
+                        <td className="py-3.5 px-4">
+                          <Link
+                            href={`/customers/${td.customerId}`}
+                            className="font-bold text-slate-900 hover:text-blue-600 text-sm"
+                          >
+                            {td.customerName}
+                          </Link>
+                          <p className="text-[11px] text-slate-500">
+                            Driver: {td.driverName} ({td.driverLicenseNo})
+                          </p>
+                        </td>
 
-                      <td className="py-3.5 px-4">
-                        <p className="font-mono font-semibold text-slate-800">
-                          Out: {formatMileage(td.mileageOut)}
-                        </p>
-                        <p className="font-mono text-[11px] text-emerald-700 font-bold">
-                          In:{" "}
-                          {td.mileageIn ? formatMileage(td.mileageIn) : "Out now"}
-                          {distanceDriven !== null && ` (+${distanceDriven} km)`}
-                        </p>
-                      </td>
+                        <td className="py-3.5 px-4">
+                          <Link
+                            href={`/inventory/${td.vehicleId}`}
+                            className="font-bold text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <Car className="w-3.5 h-3.5" />
+                            {td.vehicleTitle}
+                          </Link>
+                          <span className="font-mono text-[11px] text-slate-500">
+                            {td.stockNumber}
+                          </span>
+                        </td>
 
-                      <td className="py-3.5 px-4">
-                        <p className="font-medium text-slate-800">
-                          {formatDate(td.scheduledAt)}
-                        </p>
-                        <p className="text-[11px] text-slate-500">
-                          Staff: {td.salespersonName.split(" ")[0]}
-                        </p>
-                      </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-mono font-semibold text-slate-800">
+                            Out: {formatMileage(td.mileageOut)}
+                          </p>
+                          <p className="font-mono text-[11px] text-emerald-700 font-bold">
+                            In:{" "}
+                            {td.mileageIn ? formatMileage(td.mileageIn) : "Out now"}
+                            {distanceDriven !== null && ` (+${distanceDriven} km)`}
+                          </p>
+                        </td>
 
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            td.status === "COMPLETED"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : td.status === "SCHEDULED"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-slate-200 text-slate-600"
-                          }`}
-                        >
-                          {td.status}
-                        </span>
-                        <p className="text-[11px] text-slate-500 mt-1 max-w-[180px] truncate">
-                          {td.outcome}
-                        </p>
-                      </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-medium text-slate-800">
+                            {formatDate(td.scheduledAt)}
+                          </p>
+                          <p className="text-[11px] text-slate-500">
+                            Staff: {td.salespersonName.split(" ")[0]}
+                          </p>
+                        </td>
 
-                      <td className="py-3.5 px-4 text-right">
-                        {td.status === "SCHEDULED" && (
-                          <div className="inline-flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCompletingId(td.id);
-                                setMileageInInput(td.mileageOut + 15);
-                              }}
-                              className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
-                            >
-                              Complete
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => cancelTestDrive(td.id)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
-                              title="Cancel Test Drive"
-                            >
-                              <XCircle className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              td.status === "COMPLETED"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : td.status === "SCHEDULED"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-slate-200 text-slate-600"
+                            }`}
+                          >
+                            {td.status}
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-1 max-w-[180px] truncate">
+                            {td.outcome}
+                          </p>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right">
+                          {td.status === "SCHEDULED" && (
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCompleteError("");
+                                  setCompletingId(td.id);
+                                  setMileageInInput(td.mileageOut + 15);
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
+                              >
+                                Complete
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  cancelTestDrive(td.id);
+                                  setToast(`Cancelled test drive for ${td.customerName}.`);
+                                  setTimeout(() => setToast(""), 3000);
+                                }}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                                title="Cancel Test Drive"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -461,6 +497,12 @@ export default function TestDrivesPage() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {completeError && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+                {completeError}
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">

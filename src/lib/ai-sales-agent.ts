@@ -255,7 +255,7 @@ export const INITIAL_AI_SETTINGS: AIAgentSettings = {
   businessDescription:
     "Vehisoft Motors Kenya is a premier motor vehicle dealership specializing in inspected Japanese, European, and local used vehicles with full QISJ/JEVIC mileage verification.",
   dealershipInformation:
-    "Flagship Showroom: Ngong Road (opposite Prestige Plaza), Nairobi. Branch Showroom: Westlands Road, Westlands, Nairobi. Phone: +254 700 123 456 | Email: sales@vehisoft.co.ke",
+    "Flagship Showroom: Ngong Road (opposite Prestige Plaza), Nairobi. Branch Showroom: Westlands Road, Westlands, Nairobi. Phone: +254 704 611 033 / +254 929 868 25 | Email: versalylabs@gmail.com",
   openingHours:
     "Monday – Friday: 8:00 AM – 6:00 PM | Saturday: 9:00 AM – 5:00 PM | Sunday & Public Holidays: 10:00 AM – 4:00 PM (By Appointment)",
   location:

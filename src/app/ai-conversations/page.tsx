@@ -39,13 +39,14 @@ export default function AIConversationsAdminPage() {
     "ALL" | "WEBSITE" | "WHATSAPP"
   >("ALL");
   const [staffReply, setStaffReply] = useState("");
+  const [toast, setToast] = useState("");
 
   const filteredList = aiConversations.filter((c) =>
     filterChannel === "ALL" ? true : c.channel === filterChannel
   );
 
   const activeConv =
-    aiConversations.find((c) => c.id === selectedId) || filteredList[0];
+    filteredList.find((c) => c.id === selectedId) || filteredList[0];
 
   const linkedVehicle = activeConv?.vehicleId
     ? vehicles.find((v) => v.id === activeConv.vehicleId)
@@ -56,6 +57,8 @@ export default function AIConversationsAdminPage() {
     if (!activeConv || !staffReply.trim()) return;
     sendStaffReplyToConversation(activeConv.id, staffReply.trim(), user.name);
     setStaffReply("");
+    setToast(`Reply sent to ${activeConv.customerName} as ${user.name}.`);
+    setTimeout(() => setToast(""), 3500);
   };
 
   return (
@@ -63,7 +66,7 @@ export default function AIConversationsAdminPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
               24/7 AI Sales Agent ({aiSettings.agentName})
             </span>
@@ -81,7 +84,13 @@ export default function AIConversationsAdminPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {toast && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>{toast}</span>
+            </div>
+          )}
           <Link
             href="/showroom"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-colors"
@@ -102,7 +111,7 @@ export default function AIConversationsAdminPage() {
       {/* Main Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Conversation List */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col h-[680px]">
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col h-[420px] lg:h-[680px]">
           <div className="p-4 border-b border-slate-200 bg-slate-50/60 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-extrabold text-slate-900">
@@ -133,64 +142,79 @@ export default function AIConversationsAdminPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-            {filteredList.map((conv) => {
-              const isSelected = activeConv?.id === conv.id;
-              return (
+            {filteredList.length === 0 ? (
+              <div className="p-8 text-center">
+                <p className="text-xs font-bold text-slate-800">
+                  No conversations on this channel
+                </p>
                 <button
-                  key={conv.id}
                   type="button"
-                  onClick={() => setSelectedId(conv.id)}
-                  className={`w-full text-left p-4 transition-colors cursor-pointer ${
-                    isSelected
-                      ? "bg-blue-50/70 border-l-4 border-blue-600"
-                      : "hover:bg-slate-50"
-                  }`}
+                  onClick={() => setFilterChannel("ALL")}
+                  className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                      <span>{conv.customerName}</span>
-                      {conv.channel === "WHATSAPP" ? (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                          <Smartphone className="w-2.5 h-2.5" />
-                          WA
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
-                          <Globe className="w-2.5 h-2.5" />
-                          Web
+                  Show All Channels
+                </button>
+              </div>
+            ) : (
+              filteredList.map((conv) => {
+                const isSelected = activeConv?.id === conv.id;
+                return (
+                  <button
+                    key={conv.id}
+                    type="button"
+                    onClick={() => setSelectedId(conv.id)}
+                    className={`w-full text-left p-4 transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-blue-50/70 border-l-4 border-blue-600"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                        <span>{conv.customerName}</span>
+                        {conv.channel === "WHATSAPP" ? (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                            <Smartphone className="w-2.5 h-2.5" />
+                            WA
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
+                            <Globe className="w-2.5 h-2.5" />
+                            Web
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-slate-400 shrink-0">
+                        {conv.updatedAt}
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-semibold text-slate-700 mt-1 truncate">
+                      {conv.vehicleTitle || "General Showroom Inquiry"}
+                    </p>
+
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                          conv.status === "HANDED_OFF"
+                            ? "bg-amber-100 text-amber-800"
+                            : conv.status === "TEST_DRIVE_BOOKED"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        {conv.leadTag}
+                      </span>
+                      {conv.leadStage && (
+                        <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">
+                          Stage: {conv.leadStage}
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-slate-400 shrink-0">
-                      {conv.updatedAt}
-                    </span>
-                  </div>
-
-                  <p className="text-xs font-semibold text-slate-700 mt-1 truncate">
-                    {conv.vehicleTitle || "General Showroom Inquiry"}
-                  </p>
-
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                        conv.status === "HANDED_OFF"
-                          ? "bg-amber-100 text-amber-800"
-                          : conv.status === "TEST_DRIVE_BOOKED"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      {conv.leadTag}
-                    </span>
-                    {conv.leadStage && (
-                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">
-                        Stage: {conv.leadStage}
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -198,7 +222,7 @@ export default function AIConversationsAdminPage() {
         {activeConv && (
           <div className="lg:col-span-8 grid grid-cols-1 xl:grid-cols-12 gap-6">
             {/* Chat Transcript */}
-            <div className="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col h-[680px] overflow-hidden">
+            <div className="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-2xs flex flex-col h-[520px] lg:h-[680px] overflow-hidden">
               <div className="p-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-sm">{activeConv.customerName}</h3>

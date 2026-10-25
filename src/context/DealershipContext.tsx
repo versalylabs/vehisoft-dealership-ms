@@ -201,7 +201,18 @@ export function DealershipProvider({
   useEffect(() => {
     try {
       const savedV = localStorage.getItem(STORAGE_VEHICLES_KEY);
-      if (savedV) setVehicles(JSON.parse(savedV));
+      if (savedV) {
+        const parsed = JSON.parse(savedV) as DemoVehicle[];
+        const existingIds = new Set(parsed.map((v) => v.id));
+        const missing = INITIAL_VEHICLES.filter((v) => !existingIds.has(v.id));
+        const merged = [...parsed, ...missing];
+        setVehicles(merged);
+        if (missing.length > 0) {
+          localStorage.setItem(STORAGE_VEHICLES_KEY, JSON.stringify(merged));
+        }
+      } else {
+        setVehicles(INITIAL_VEHICLES);
+      }
       const savedS = localStorage.getItem(STORAGE_SUPPLIERS_KEY);
       if (savedS) setSuppliers(JSON.parse(savedS));
       const savedC = localStorage.getItem(STORAGE_CUSTOMERS_KEY);

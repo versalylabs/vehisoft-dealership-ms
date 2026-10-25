@@ -209,10 +209,22 @@ export default function SalesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-xs">
-              {sales.map((s) => {
-                const totalCost =
-                  s.purchaseCostSnapshot + s.expensesSnapshot;
-                return (
+              {sales.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 px-4 text-center">
+                    <p className="text-sm font-bold text-slate-900">
+                      No vehicle sales recorded yet
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Click &ldquo;Record Completed Sale&rdquo; above to finalize a vehicle purchase deal.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                sales.map((s) => {
+                  const totalCost =
+                    s.purchaseCostSnapshot + s.expensesSnapshot;
+                  return (
                   <tr key={s.id} className="hover:bg-slate-50">
                     <td className="py-3.5 px-4">
                       <span className="font-mono font-bold text-slate-900">
@@ -311,8 +323,9 @@ export default function SalesPage() {
                     </td>
                   </tr>
                 );
-              })}
-            </tbody>
+              })
+            )}
+          </tbody>
           </table>
         </div>
       </div>

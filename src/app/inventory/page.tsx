@@ -347,8 +347,35 @@ export default function InventoryListPage() {
         </div>
       </div>
 
-      {/* Vehicle List Table View */}
-      {viewMode === "table" ? (
+      {/* Vehicle List Table / Grid / Empty View */}
+      {filteredVehicles.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto mb-3">
+            <Car className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900">
+            No vehicles match your current filters
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+            Try broadening your search query, status, make, or price filter to see available stock.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setStatusFilter("ALL");
+              setMakeFilter("ALL");
+              setBodyFilter("ALL");
+              setFuelFilter("ALL");
+              setTransFilter("ALL");
+              setMaxPriceFilter("ALL");
+            }}
+            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-colors"
+          >
+            Reset All Filters
+          </button>
+        </div>
+      ) : viewMode === "table" ? (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
